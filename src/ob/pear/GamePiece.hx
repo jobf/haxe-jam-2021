@@ -10,6 +10,7 @@ interface IGamePiece{
 	public var cloth(default, null):Element;
     public var body(default, null):Body;
 	public function update(deltaTime:Float):Void;
+	public function setColor(color:Color):Void;
 }
 
 class ShapePiece implements IGamePiece{
@@ -46,6 +47,10 @@ class ShapePiece implements IGamePiece{
 		}
 	}
 
+	public function setColor(color_:Color) {
+		cloth.color = color_;
+		buffer.updateElement(cloth);
+	}
 }
 
 class MultiShapePiece implements IGamePiece{
@@ -89,5 +94,11 @@ class MultiShapePiece implements IGamePiece{
 		}
 	}
 
+	public function setColor(color_:Color) {
+		cloth.color = color_;
+		buffer.updateElement(cloth);
+	}
 }
+
+
 
