@@ -1,0 +1,107 @@
+package ob.pear;
+
+import ob.pear.Delay.DelayFactory;
+import ob.pear.Signals.KeyPressSignal;
+import lime.ui.MouseButton;
+import ob.pear.Signals.MouseButtonSignal;
+import lime.math.Vector2;
+import ob.pear.Scene.TestScene;
+import ob.pear.GamePiece.IGamePiece;
+import ob.pear.GamePiece.ShapePiece;
+import echo.data.Options.ListenerOptions;
+import echo.data.Options.BodyOptions;
+import peote.view.Color;
+import lime.ui.KeyModifier;
+import lime.ui.KeyCode;
+import lime.ui.Window;
+
+class Pear{
+    public var scene(default, null):Scene;
+    public var window(default, null):Window;
+    public var delayFactory(default, null):DelayFactory;
+
+    var mousePos:Vector2;
+    var mouseWheelDelta:Vector2;
+    public var input(default, null):Signals;
+
+    public function new(window:Window, backgroundColor:Color=Color.GREY1){
+        this.window = window;
+        input = new Signals();
+        this.scene = new TestScene(this);
+        onUpdate = defaultOnUpdate;
+        mousePos = new Vector2();
+        mouseWheelDelta = new Vector2();
+        delayFactory = new DelayFactory();
+    }
+
+   public function followMouse(piece:IGamePiece, followLogic:(IGamePiece, Vector2)->Void = null){
+        var followLogic = followLogic != null 
+            ? followLogic 
+            : (piece, pos) -> {piece.body.set_position(pos.x, pos.y);};
+
+        input.onMouseMove.connect((pos)->{
+            followLogic(piece, pos);    
+        });
+   }
+    
+    public function changeScene(scene:Scene, autoInit:Bool = true){
+        this.scene = scene;
+    }
+
+    public function toggleRender(){
+        scene.vis.toggleRender();
+    }
+
+    public var onUpdate:(Int,Pear)->Void;
+    
+    function defaultOnUpdate(deltaTime:Int, core:Pear):Void
+    {
+        scene.phys.update(deltaTime);
+    }
+
+    public function update(deltaTime:Int):Void
+    {
+        onUpdate(deltaTime, this);
+    }
+
+    public function render(){
+        scene.vis.render();
+    }
+
+    public function onKeyDown (keyCode:KeyCode, modifier:KeyModifier):Void {
+        input.onKeyDown.emit(new KeyPressSignal(keyCode, modifier, true));
+    }
+
+    public function onKeyUp (keyCode:KeyCode, modifier:KeyModifier):Void {
+        input.onKeyUp.emit(new KeyPressSignal(keyCode, modifier, false));
+    }
+
+    public function onMouseMove(x:Float, y:Float){
+        mousePos.x = x;
+        mousePos.y = y;
+        input.onMouseMove.emit(mousePos);
+	}
+
+    public function onMouseDown(x:Float, y:Float, button:MouseButton){
+        input.onMouseDown.emit(new MouseButtonSignal(x, y, button));
+	}
+
+    public function onMouseUp(x:Float, y:Float, button:MouseButton){
+        input.onMouseUp.emit(new MouseButtonSignal(x, y, button));
+	}
+
+    public function onMouseScroll(x:Float, y:Float){
+        mouseWheelDelta.x = x;
+        mouseWheelDelta.y = y;
+        input.onMouseWheel.emit(mouseWheelDelta);
+	}
+    
+    public function initShape(colour:Color, options:BodyOptions):ShapePiece{
+        return scene.phys.initShape(colour, options);
+    }
+    public function setupCollision(a:IGamePiece, b:IGamePiece, options:ListenerOptions){
+		scene.phys.setupCollision(a.body, b.body, options);
+	}
+
+
+}
