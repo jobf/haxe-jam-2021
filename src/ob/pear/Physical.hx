@@ -51,7 +51,7 @@ class Physical {
 		return deltaMs;
 	}
 
-	public function initMultiShape(colour:Color, options:BodyOptions):MultiShapePiece {
+	public function initMultiShape(elementKey:Int, colour:Color, options:BodyOptions):MultiShapePiece {
 		if(options.shapes.length < 1){
 			throw "not a multi shape";
 		}
@@ -60,7 +60,7 @@ class Physical {
 			var offsetPosX = options.x += s.offset_x;
 			var offsetPosY = options.y += s.offset_y;
 			var fallbackH = s.height == null ? s.width : s.height;
-			var e = new ShapeElement(offsetPosX, offsetPosY, s.width, fallbackH, colour, s.type);
+			var e = new ShapeElement(elementKey, offsetPosX, offsetPosY, s.width, fallbackH, colour, s.type);
 			e.pivotX += s.offset_x;
 			e.pivotY += s.offset_y;
 			elements.push(e);
@@ -71,8 +71,9 @@ class Physical {
 		return piece;
 	}
 
-	public function initShape(colour:Color, phys:BodyOptions):ShapePiece {
-		var piece = new ShapePiece(colour, phys.shape.width, phys.shape.height, ShapeElement.buffers[phys.shape.type], world.make(phys), phys.shape.sides);
+	public function initShape(elementKey:Int, colour:Color, phys:BodyOptions, visualSize:{vWidth:Float, vHeight:Float}= null):ShapePiece {
+		visualSize = visualSize != null ? visualSize : { vWidth: phys.shape.width, vHeight: phys.shape.height};
+		var piece = new ShapePiece(elementKey, colour, visualSize.vWidth, visualSize.vHeight, ShapeElement.buffers[elementKey], world.make(phys), phys.shape.sides);
 		pieces.push(piece);
 		return piece;
 	}

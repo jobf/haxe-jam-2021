@@ -1,5 +1,7 @@
 package ob.pear;
 
+import peote.view.Texture;
+import lime.graphics.Image;
 import echo.data.Types.ShapeType;
 import peote.view.Display;
 import peote.view.Buffer;
@@ -19,12 +21,15 @@ class ShapeElement implements Element
 	@pivotX public var pivotX:Float;
 	@pivotY public var pivotY:Float;
 	@rotation public var rotation:Float;
-	
-	public static var buffers(default, null):Map<ShapeType, Buffer<ShapeElement>> = [];
-	public static var programs(default, null):Map<ShapeType, Program> = [];
-	static public function init(display:Display, shape:ShapeType) {
-		buffers[shape] = new Buffer<ShapeElement>(100);
-		programs[shape] = new Program(buffers[shape]);
+	@zIndex // max 0x3FFFFFFF , min -0xC0000000 
+	public var z:Int = 0;
+
+	public static var buffers(default, null):Map<Int, Buffer<ShapeElement>> = [];
+	public static var programs(default, null):Map<Int, Program> = [];
+	static public function init(display:Display, shape:ShapeType, key:Int, image:Image=null) {
+		buffers[key] = new Buffer<ShapeElement>(100);
+		programs[key] = new Program(buffers[key]);
+
 
 		var fragmentShader = switch(shape){
 			case CIRCLE: ShapeShaders.CIRCLE;
@@ -32,16 +37,28 @@ class ShapeElement implements Element
 			case _: "";
 		}
 
-		if(fragmentShader.length > 0){
-			programs[shape].injectIntoFragmentShader(fragmentShader);
-			programs[shape].setColorFormula('compose(color, sides)');
+		if(image != null){
+			var texture = new Texture(image.width, image.height);
+			texture.setImage(image, 0);
+			programs[key].setTexture(texture, '_$key');
+			programs[key].injectIntoFragmentShader("
+				vec4 compose (vec4 c, float sides)
+				{
+					return texture2D(uTexture0, vTexCoord);
+				}
+			");
+			programs[key].setColorFormula('compose(color, sides)');
+		}
+		else if(fragmentShader.length > 0){
+			programs[key].injectIntoFragmentShader(fragmentShader);
+			programs[key].setColorFormula('compose(color, sides)');
 		}
 		
-		programs[shape].alphaEnabled = true;
-		display.addProgram(programs[shape]);
+		programs[key].alphaEnabled = true;
+		display.addProgram(programs[key]);
 	}
 
-	public function new(positionX:Float, positionY:Float, width:Float, height:Float, color:Color, shape:ShapeType, numSides:Float=3) {
+	public function new(key:Int, positionX:Float, positionY:Float, width:Float, height:Float, color:Color, shape:ShapeType, numSides:Float=3) {
 		this.x = positionX;
 		this.y = positionY;
 		this.w = Std.int(width);
@@ -51,7 +68,7 @@ class ShapeElement implements Element
 		pivotY = this.h / 2;
 		this.color = color;
 		this.sides = numSides;
-		buffers[shape].addElement(this);
+		buffers[key].addElement(this);
 		#if debug
 			trace('new element pos [${this.x}, ${this.y}]  dim [${this.w} (${this.radius}) * ${this.h}] pivot [${this.pivotX}, ${this.pivotY}] colour [${this.color}] sides [${this.sides}]');
 		#end

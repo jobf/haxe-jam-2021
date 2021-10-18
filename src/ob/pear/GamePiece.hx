@@ -10,6 +10,7 @@ interface IGamePiece{
 	public var cloth(default, null):Element;
     public var body(default, null):Body;
 	public function update(deltaTime:Float):Void;
+	public function remove():Void;
 	public function setColor(color:Color):Void;
 }
 
@@ -18,9 +19,9 @@ class ShapePiece implements IGamePiece{
 	public var cloth(default, null):ShapeElement;
 	var buffer:Buffer<ShapeElement>;
 	var color:Color;
-	public function new(color:Color, visibleWidth:Float, visibleHeight:Float, buffer:Buffer<ShapeElement>, body:Body, numShapeSides:Int=3){
+	public function new(elementKey:Int, color:Color, visibleWidth:Float, visibleHeight:Float, buffer:Buffer<ShapeElement>, body:Body, numShapeSides:Int=3){
 		this.buffer = buffer;				
-		cloth = new ShapeElement(body.x, body.y, visibleWidth, visibleHeight, color, body.shape.type, numShapeSides);
+		cloth = new ShapeElement(elementKey, body.x, body.y, visibleWidth, visibleHeight, color, body.shape.type, numShapeSides);
 		this.body = body;
 		this.body.on_move = onMove;
 		this.body.on_rotate = onRotate;
@@ -47,8 +48,17 @@ class ShapePiece implements IGamePiece{
 		}
 	}
 
+	public function remove():Void{
+		body.remove();
+		buffer.removeElement(cloth);
+	}
+
 	public function setColor(color_:Color) {
 		cloth.color = color_;
+		buffer.updateElement(cloth);
+	}
+
+	public function updateElement(){
 		buffer.updateElement(cloth);
 	}
 }
@@ -92,6 +102,11 @@ class MultiShapePiece implements IGamePiece{
 		else{
 			cloth.color.alpha = color.alpha;
 		}
+	}
+	
+	public function remove():Void{
+		body.remove();
+		buffer.removeElement(cloth);
 	}
 
 	public function setColor(color_:Color) {

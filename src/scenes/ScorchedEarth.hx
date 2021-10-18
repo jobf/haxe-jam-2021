@@ -1,17 +1,20 @@
 package scenes;
 
+import pieces.Launcher;
+import ob.pear.GamePiece.ShapePiece;
+import utils.Loader;
+import ob.pear.Sprites.ShapeElement;
+import lime.graphics.Image;
 import lime.ui.KeyCode;
-import echo.Body;
 import peote.view.Color;
-import ob.pear.Delay;
 import echo.data.Options.ListenerOptions;
 import ob.pear.Pear;
 import hxmath.math.Vector2;
 import ob.pear.GamePiece.IGamePiece;
 import ob.pear.Scene;
-import echo.data.Types.ShapeType;
 
 using ob.pear.Delay.DelayExtensions;
+
 
 enum Direction{
 	Up;
@@ -20,13 +23,45 @@ enum Direction{
 	Left;
 }
 
-class ScorchedEarth extends Scene {
-	var cursor:IGamePiece;
-	var pieces:Array<IGamePiece> = [];
-	var playerA:Launcher;
-	var playerB:Launcher;
 
-	override public function new(pear:Pear) {
+@:enum abstract ElementKey(Int) from Int to Int {
+	var RECT;
+	var CIRCLE;
+	var POLYGON;
+	var LORD;
+	var KENNEL;
+	var DOG;
+	var CAVALRY;
+  }
+
+class Preload{
+	public static function letsGo(pathMap:Map<ElementKey, String>, onLoadAll:Map<ElementKey, Image>->Void){
+		var keyValues = [for (_ in pathMap.keyValueIterator()) _];
+        Loader.imageArray([for (kv in keyValues) kv.value], (images)->{
+			var imageMap:Map<ElementKey,Image> = [];
+			for(i => kv in keyValues){
+				imageMap[kv.key] = images[i];
+			}
+			onLoadAll(imageMap);
+		});
+    }
+}
+
+  
+class ScorchedEarth extends Scene {	
+	var pieces:Array<IGamePiece> = [];
+	var playerA:Player;
+	// var playerB:Launcher;
+	var cursor:IGamePiece;
+	
+	public static var assetPaths(default, null):Map<ElementKey, String> = [
+		LORD => 'assets/png/templord.png',
+		KENNEL => 'assets/png/beasthouse.png',
+		DOG => 'assets/png/dog.png',
+		CAVALRY => 'assets/png/cavalry.png'
+	];
+	
+	override public function new(pear:Pear, images:Map<ElementKey, Image>) {
 		super(pear, {
 			width: pear.window.width,
 			height: pear.window.height,
@@ -35,14 +70,18 @@ class ScorchedEarth extends Scene {
 			history: 1
 		});
 
-		var playerPosA = new Vector2(0, pear.window.height);
-		var playerTrajectoryA = new Vector2(130, -130);
-		playerA = new Launcher(pear, playerPosA, playerTrajectoryA);
+		ShapeElement.init(vis.display, RECT, LORD, images[LORD]);
+		ShapeElement.init(vis.display, RECT, KENNEL, images[KENNEL]);
+		ShapeElement.init(vis.display, CIRCLE, DOG, images[DOG]);
+		ShapeElement.init(vis.display, RECT, CAVALRY, images[CAVALRY]);
 
-		var bSize = pear.window.width * 0.2;
-		var playerPosB = new Vector2(pear.window.width - bSize, pear.window.height);
-		var playerTrajectoryB = new Vector2(-130, -130);
-		playerB = new Launcher(pear, playerPosB, playerTrajectoryB);
+		var playerPosA = new Vector2(0, pear.window.height);
+		playerA = new Player(pear, playerPosA, true);
+
+		// var bSize = pear.window.width * 0.2;
+		// var playerPosB = new Vector2(pear.window.width - bSize, pear.window.height);
+		// var playerTrajectoryB = new Vector2(-130, -130);
+		// playerB = new Launcher(pear, playerPosB, playerTrajectoryB);
 
 		phys.world.quadtree.max_depth = 2;
 		phys.world.static_quadtree.max_depth = 3;
@@ -50,23 +89,24 @@ class ScorchedEarth extends Scene {
 		var worldCollideOptions:ListenerOptions = {
 			// placeholder
 		};
+
 		phys.world.listen(worldCollideOptions);
 
-		
-		phys.world.listen(playerA.entity.body, playerB.projectileBodies, {
-			enter: (entity, projectile, collisions) -> {
-				playerA.takeDamage(projectile);
-			}
-		});
+		// too more opponent entities and collide them
+		// phys.world.listen(playerA.lord.body, playerB.projectileBodies, {
+		// 	enter: (entity, projectile, collisions) -> {
+		// 		playerA.launcher.takeDamage(projectile);
+		// 	}
+		// });
 
-		phys.world.listen(playerB.entity.body, playerA.projectileBodies, {
-			enter: (entity, projectile, collisions) -> {
-				playerB.takeDamage(projectile);
-			}
-		});
+		// phys.world.listen(playerB.entity.body, playerA.launcher.projectileBodies, {
+		// 	enter: (entity, projectile, collisions) -> {
+		// 		playerB.takeDamage(projectile);
+		// 	}
+		// });
 		
 		var cursorSize = pear.window.height * 0.07;
-		cursor = phys.initShape(0x44ff44aa, {
+		cursor = phys.initShape(ElementKey.CIRCLE, 0x44ff44aa, {
 			x: pear.window.width * 0.5,
 			y: pear.window.height * 0.5,
 			velocity_y: 0,
@@ -99,7 +139,7 @@ class ScorchedEarth extends Scene {
 	function pearUpdate(dt:Int, p:Pear) {
 		var deltaMs = phys.update(dt);
 		playerA.update(deltaMs);
-		playerB.update(deltaMs);
+		// playerB.update(deltaMs);
 	}
 
 	var playerAKeys:Map<KeyCode,Direction> = [
@@ -109,147 +149,89 @@ class ScorchedEarth extends Scene {
 		D => Right
 	];
 
-	var playerBKeys:Map<KeyCode,Direction> = [
-		U => Up,
-		H => Left,
-		J => Down,
-		L => Right
-	];
+	// var playerBKeys:Map<KeyCode,Direction> = [
+	// 	U => Up,
+	// 	H => Left,
+	// 	J => Down,
+	// 	L => Right
+	// ];
 
 	function handlePlayerKeyPress(key:KeyCode) {
 		if(playerAKeys.exists(key)){
-			playerA.alterTrajectory(playerAKeys[key]);
+			playerA.launcher.alterTrajectory(playerAKeys[key]);
 		}
-		else if(playerBKeys.exists(key)){
-			playerB.alterTrajectory(playerBKeys[key]);
-		}
+		// else if(playerBKeys.exists(key)){
+		// 	playerB.alterTrajectory(playerBKeys[key]);
+		// }
 	}
 }
 
-typedef Projectile = {color:Int, shape:ShapeType, height:Float, width:Float, damagePower:Float};
-
-class Launcher {
+class Player{
+	public var lord(default, null):ShapePiece;
+	public var launcher(default, null):Launcher;
 	var pear:Pear;
-	var projectile:Projectile = {
-		color: 0xffffffdd,
-		shape: CIRCLE,
-		width: 16,
-		height: 16,
-		damagePower: 20
-	};
-	var health:Float;
-	public var position(default, null):Vector2;
-	public var trajectory(default, null):Vector2;
-	public var projectiles(default, null):Array<IGamePiece> = [];
-	public var projectileBodies(default, null):Array<Body> = [];
-	
-	public var entity:IGamePiece;
-
-	var timer:Float = 0;
-	var maxProjectiles = 20;
-	var rateLimiter:Delay;
-
-	public function new(pear_:Pear, position_:Vector2 = null, trajectory_:Vector2 = null) {
+	public function new(pear_:Pear, position:Vector2, flipX:Bool = false) {
 		pear = pear_;
-		rateLimiter = pear.delayFactory.Default(1, true, true);
-		trace(rateLimiter);
-		health = 100;
-		var size = pear.window.width * 0.2;
-
-		position = position_ != null ? position_ : new Vector2(0, 0);
-		// position is center of entity so adjust to fit.
-		position.x += size * 0.5; // nudge towards right of screen by 50% of size
-		position.y -= size * 0.5; // nudge towards top of screen by 50% of size
-
-		trajectory = trajectory_ != null ? trajectory_ : new Vector2(0, 0);
-		
-		entity = pear.initShape(Color.CYAN, {
-			x: position.x,
+		var xTrajectory:Float = flipX ? 130 : -130;
+		var trajectory = new Vector2(xTrajectory, -130);
+		lord =  pear.initShape(ElementKey.LORD, Color.CYAN, {
+			x: position.x + 100,
 			y: position.y,
 			elasticity: 0.0,
 			rotational_velocity: 0.0,
 			shape: {
 				type: RECT,
 				// radius: size * 0.5,
-				width: size,
-				height: size,
+				width: 270,
+				height: 666,
 				solid: false,
 			}
 		});
-	}
-
-	public function initProjectile():IGamePiece {
-		var piece = pear.initShape(this.projectile.color, {
-			x: position.x,
-			y: position.y,
-			elasticity: 0.3,
-			rotational_velocity: 0.0,
-			shape: {
-				type: this.projectile.shape,
-				radius: this.projectile.height * 0.5,
-				width: this.projectile.width,
-				height: this.projectile.height,
-				solid: false,
-			}
-		});
-
-		projectiles.push(piece);
-		piece.body.data.projectileData = projectile;
-		projectileBodies.push(piece.body);
-		return piece;
-	}
-
-	public function launchProjectile(projectile:IGamePiece) {
-		projectile.body.velocity.set(trajectory.x, trajectory.y);
-	}
-
-	public function takeDamage(body:Body){
-		trace("hit");
-		var projectileData:Projectile = body.data.projectileData;
-		if(projectileData != null){
-			trace('damage ${projectileData.damagePower}');
-			health -= projectileData.damagePower;
-		}
-	}
-
-	function destroy(){
-		entity.body.remove();
-		entity.setColor(Color.RED);
-	}
-
-	function onRateLimitFinish() {
-		var p = initProjectile();
-		launchProjectile(p);
+		lord.cloth.z = -30;
+		var launcherPos = new Vector2(position.x, position.y + 30);
+		launcher = new Launcher(pear, Barracks.Launchers["KENNEL"], Barracks.Projectiles["DOG"], launcherPos, trajectory);
 	}
 
 	public function update(dt:Float) {
-		if(health <= 0){
-			destroy();
-		}
-		if (projectiles.length < maxProjectiles) {
-			rateLimiter.update(dt, onRateLimitFinish);
-		}
-
-		for (p in projectiles) {
-			if (pear.scene.phys.isOutOfBounds(p.body)) {
-				// stop
-				p.body.velocity.set(0, 0);
-				// reset posiiton
-				p.body.set_position(position.x, position.y);
-				// launch again
-				launchProjectile(p);
-			}
-		}
+		launcher.update(dt);
 	}
+}
 
-	var amount = 10;
-	public function alterTrajectory(direction:Direction){
-		switch (direction){
-			case Up: trajectory.y -= amount;
-			case Down: trajectory.y += amount;
-			case Left: trajectory.x -= amount;
-			case Right: trajectory.y += amount;
-			case _:return;
+class Barracks{
+	public static var Launchers:Map<String, LauncherStats> = [
+		"KENNEL" => {
+			imageKey:KENNEL,
+			shape: RECT,
+			bodySize: new Vector2(150, 150),
+			visualSize: new Vector2(180, 180),
+			health: 100,
+			states: [
+				Idle => 0.7,
+				Prepare => 0.2,
+				Shoot => 0.1
+			]
+		},
+		"CAVALRY" => {
+			imageKey:CAVALRY,
+			shape: RECT,
+			bodySize: new Vector2(340, 120),
+			visualSize: new Vector2(520, 280),
+			health: 50,
+			states: [
+				Idle => 0.7,
+				Prepare => 0.2,
+				Shoot => 0.1
+			]
+		},
+	];
+	public static var Projectiles:Map<String, ProjectileStats> = [
+		"DOG" => {
+			color: 0xffffffdd,
+			imageKey: DOG,
+			shape: CIRCLE,
+			bodySize: new Vector2(16, 16),
+			visualSize: new Vector2(90, 90),
+			damagePower: 20
 		}
-	}
+	];
 }

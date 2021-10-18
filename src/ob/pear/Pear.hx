@@ -96,8 +96,8 @@ class Pear{
         input.onMouseWheel.emit(mouseWheelDelta);
 	}
     
-    public function initShape(colour:Color, options:BodyOptions):ShapePiece{
-        return scene.phys.initShape(colour, options);
+    public function initShape(elementKey:Int, colour:Color, options:BodyOptions, visualSize:{vWidth:Float, vHeight:Float}= null):ShapePiece{
+        return scene.phys.initShape(elementKey, colour, options, visualSize);
     }
     public function setupCollision(a:IGamePiece, b:IGamePiece, options:ListenerOptions){
 		scene.phys.setupCollision(a.body, b.body, options);

@@ -1,6 +1,7 @@
 package ob.pear;
 
 
+import echo.data.Types.ShapeType;
 import ob.pear.Sprites.ShapeElement;
 import peote.view.PeoteView;
 import peote.view.Display;
@@ -11,6 +12,7 @@ import peote.view.Texture;
 import peote.view.Element;
 import lime.ui.Window;
 
+
 class Visual{
 	var peoteView:PeoteView;
 	public var display:Display;
@@ -18,7 +20,7 @@ class Visual{
 	var mainDisplay:Display;
 	var isRendering:Bool;
 
-	public function new(window:Window, backgroundColor:Color=Color.BLACK){
+	public function new(window:Window, backgroundColor:Color=0xbdb6aeff){
 		peoteView = new PeoteView(window);
 		display = new Display(-10000, -10000, window.width, window.height, 0x00000000);
 		peoteView.addDisplay(display);
@@ -58,9 +60,9 @@ class Visual{
 		
 		peoteView.renderToTexture(display, 0);
 
-		ShapeElement.init(display, RECT);
-		ShapeElement.init(display, CIRCLE);
-		ShapeElement.init(display, POLYGON);
+		ShapeElement.init(display, RECT, RECT);
+		ShapeElement.init(display, CIRCLE, CIRCLE);
+		ShapeElement.init(display, POLYGON, POLYGON);
 	}
 
 	public function toggleRender() {

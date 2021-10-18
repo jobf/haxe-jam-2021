@@ -38,9 +38,10 @@ class TestScene extends Scene {
         var numColumns = Math.round(pear.window.width / tileSizeW);
         var numRows = Math.round(pear.window.width / tileSizeH);
         var colors = [0x4488eea0, 0xee4488a0];
+        var stripeKey = 0;
         for(r in 0...numRows+1){
             var colorIndex = (r % 2 == 0 ? 0 : 1);
-            var stripe = phys.initShape(colors[colorIndex], {
+            var stripe = phys.initShape(stripeKey, colors[colorIndex], {
                 x: 0 + (pear.window.width * 0.5),
                 y: r * tileSizeH,
                 shape:{
@@ -52,7 +53,7 @@ class TestScene extends Scene {
         for(c in 0...numColumns+1){
             var colorIndex = (c % 2 == 0 ? 0 : 1);
             var color =colors[colorIndex];
-            var stripe = phys.initShape(color, {
+            var stripe = phys.initShape(stripeKey, color, {
                 x: c * tileSizeW,
                 y: 0 + (pear.window.height * 0.5),
                 shape:{
@@ -63,7 +64,7 @@ class TestScene extends Scene {
             });
         }
 
-        cursor = phys.initShape(0xffffffa0,{
+        cursor = phys.initShape(stripeKey, 0xffffffa0,{
 			x: pear.window.width * 0.5,
 			y: pear.window.height * 0.5,
             rotational_velocity: 300,

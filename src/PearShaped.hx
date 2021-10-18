@@ -17,8 +17,10 @@ class PearShaped extends Application {
 
 	public function init(window:Window) {
 		pear = new Pear(window);
-		var scene = new ScorchedEarth(pear);
-		pear.changeScene(scene);
+		
+		Preload.letsGo(ScorchedEarth.assetPaths, (imageMap)->{
+			pear.changeScene(new ScorchedEarth(pear, imageMap));
+		});
 	}
 
 	override function onWindowCreate():Void {
