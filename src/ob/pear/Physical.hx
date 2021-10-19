@@ -44,6 +44,10 @@ class Physical {
 		world = Echo.start(worldOptions);
 	}
 
+	public function halt() {
+		world.dispose();
+	}
+
 	public function update(deltaTime:Int):Float {
 		var deltaMs = deltaTime / 1000;
 		totalMsElapsed += deltaMs;

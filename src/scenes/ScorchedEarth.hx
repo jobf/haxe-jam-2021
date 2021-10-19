@@ -11,7 +11,6 @@ import lime.math.Vector2;
 import lime.ui.KeyCode;
 import ob.pear.GamePiece.IGamePiece;
 import ob.pear.Pear;
-import ob.pear.Scene;
 import ob.pear.Sprites.ShapeElement;
 import utils.Loader;
 
@@ -24,32 +23,10 @@ enum Direction {
 	Left;
 }
 
-class Preload {
-	public static function letsGo(pathMap:Map<ElementKey, String>, onLoadAll:Map<ElementKey, Image>->Void) {
-		var keyValues = [for (_ in pathMap.keyValueIterator()) _];
-		Loader.imageArray([for (kv in keyValues) kv.value], (images) -> {
-			var imageMap:Map<ElementKey, Image> = [];
-			for (i => kv in keyValues) {
-				imageMap[kv.key] = images[i];
-			}
-			onLoadAll(imageMap);
-		});
-	}
-}
-
-class ScorchedEarth extends Scene {
+class ScorchedEarth extends BaseScene {
 	var pieces:Array<IGamePiece> = [];
 	var playerA:Player;
 	var playerB:Player;
-	var cursor:IGamePiece;
-
-	// var wave:Wave;
-	public static var assetPaths(default, null):Map<ElementKey, String> = [
-		LORD => 'assets/png/templord.png',
-		KENNEL => 'assets/png/beasthouse.png',
-		DOG => 'assets/png/dog.png',
-		CAVALRY => 'assets/png/cavalry.png'
-	];
 
 	override public function new(pear:Pear, images:Map<ElementKey, Image>) {
 		super(pear, {
@@ -58,8 +35,11 @@ class ScorchedEarth extends Scene {
 			gravity_y: 100,
 			iterations: 5,
 			history: 1
-		});
+		}, images);
+	}
 
+	override function init() {
+		super.init();
 		pear.onUpdate = pearUpdate;
 
 		ShapeElement.init(vis.display, RECT, LORD, images[LORD]);
@@ -75,26 +55,6 @@ class ScorchedEarth extends Scene {
 		};
 
 		phys.world.listen(worldCollideOptions);
-
-		var cursorSize = pear.window.height * 0.07;
-		cursor = phys.initShape(ElementKey.CIRCLE, 0x44ff44aa, {
-			x: pear.window.width * 0.5,
-			y: pear.window.height * 0.5,
-			velocity_y: 0,
-			velocity_x: 0,
-			max_velocity_y: 0,
-			max_velocity_x: 0,
-			kinematic: true,
-			shape: {
-				type: CIRCLE,
-				radius: cursorSize * 0.5,
-				width: cursorSize,
-				height: cursorSize,
-				solid: false
-			}
-		});
-
-		pear.followMouse(cursor);
 
 		pear.input.onMouseDown.connect((sig) -> {
 			trace('mouse is clicked ${sig.x}, ${sig.y}');

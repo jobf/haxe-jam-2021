@@ -45,8 +45,15 @@ class Pear {
 		});
 	}
 
-	public function changeScene(scene:Scene, autoInit:Bool = true) {
-		this.scene = scene;
+	public function changeScene(nextScene:Scene, autoInit:Bool = true) {
+		// reset input to clear old connections
+		input = new Signals();
+
+		if (scene != null) {
+			scene.halt();
+		}
+		scene = nextScene;
+		scene.init();
 	}
 
 	public function toggleRender() {

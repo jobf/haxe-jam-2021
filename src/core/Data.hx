@@ -2,16 +2,40 @@ package core;
 
 import core.Launcher.LauncherStats;
 import core.Launcher.ProjectileStats;
+import lime.graphics.Image;
 import lime.math.Vector2;
+import utils.Loader;
 
 @:enum abstract ElementKey(Int) from Int to Int {
 	var RECT;
 	var CIRCLE;
 	var POLYGON;
+	var TITLE;
 	var LORD;
 	var KENNEL;
 	var DOG;
 	var CAVALRY;
+}
+
+class Preload {
+	static var assetPaths(default, null):Map<ElementKey, String> = [
+		TITLE => 'assets/png/LLG7TH.png',
+		LORD => 'assets/png/templord.png',
+		KENNEL => 'assets/png/beasthouse.png',
+		DOG => 'assets/png/dog.png',
+		CAVALRY => 'assets/png/cavalry.png'
+	];
+
+	public static function letsGo(onLoadAll:Map<ElementKey, Image>->Void) {
+		var keyValues = [for (_ in assetPaths.keyValueIterator()) _];
+		Loader.imageArray([for (kv in keyValues) kv.value], (images) -> {
+			var imageMap:Map<ElementKey, Image> = [];
+			for (i => kv in keyValues) {
+				imageMap[kv.key] = images[i];
+			}
+			onLoadAll(imageMap);
+		});
+	}
 }
 
 class Barracks {

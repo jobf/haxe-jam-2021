@@ -26,6 +26,7 @@ class Player {
 			y: position.y,
 			elasticity: 0.0,
 			rotational_velocity: 0.0,
+			kinematic: true,
 			shape: {
 				type: RECT,
 				// radius: size * 0.5,

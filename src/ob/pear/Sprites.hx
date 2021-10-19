@@ -110,6 +110,9 @@ class ShapeElement implements Element {
 		// pivotY = this.h / 2;
 		this.color = color;
 		this.sides = numSides;
+		if (!buffers.exists(key)) {
+			throw 'No buffer exists for the key [$key] make sure to Init the ShapeElement';
+		}
 		buffers[key].addElement(this);
 		#if debug
 		trace('new element pos [${this.x}, ${this.y}]  dim [${this.w} (${this.radius}) * ${this.h}] pivot [${this.px_offset}, ${this.py_offset}] colour [${this.color}] sides [${this.sides}]');

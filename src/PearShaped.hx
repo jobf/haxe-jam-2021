@@ -1,15 +1,17 @@
 package;
 
-import scenes.ScorchedEarth;
+import core.Data.Preload;
 import haxe.CallStack;
-import ob.pear.Pear;
-import lime.ui.MouseWheelMode;
 import lime.app.Application;
-import lime.ui.Window;
 import lime.graphics.RenderContext;
 import lime.ui.KeyCode;
 import lime.ui.KeyModifier;
 import lime.ui.MouseButton;
+import lime.ui.MouseWheelMode;
+import lime.ui.Window;
+import ob.pear.Pear;
+import scenes.ScorchedEarth;
+import scenes.Title;
 
 class PearShaped extends Application {
 	var pear:Pear;
@@ -17,9 +19,10 @@ class PearShaped extends Application {
 
 	public function init(window:Window) {
 		pear = new Pear(window);
-		
-		Preload.letsGo(ScorchedEarth.assetPaths, (imageMap)->{
-			pear.changeScene(new ScorchedEarth(pear, imageMap));
+
+		Preload.letsGo((imageMap) -> {
+			// pear.changeScene(new ScorchedEarth(pear, imageMap));
+			pear.changeScene(new Title(pear, imageMap));
 		});
 	}
 
@@ -43,9 +46,8 @@ class PearShaped extends Application {
 		pear.render();
 	}
 
-
 	/* ~~~~~~~~~~~~~~~~~ Keyboard Events ~~~~~~~~~~~~~~~~~ */
-	override function onKeyDown (keyCode:KeyCode, modifier:KeyModifier):Void {
+	override function onKeyDown(keyCode:KeyCode, modifier:KeyModifier):Void {
 		#if !html5
 		if (keyCode == ESCAPE) {
 			window.close();
@@ -54,12 +56,11 @@ class PearShaped extends Application {
 		pear.onKeyDown(keyCode, modifier);
 	}
 
-	override function onKeyUp (keyCode:KeyCode, modifier:KeyModifier):Void {
+	override function onKeyUp(keyCode:KeyCode, modifier:KeyModifier):Void {
 		pear.onKeyUp(keyCode, modifier);
 	}
-	
-	/* ~~~~~~~~~~~~~~~~~ Mouse Events ~~~~~~~~~~~~~~~~~ */
 
+	/* ~~~~~~~~~~~~~~~~~ Mouse Events ~~~~~~~~~~~~~~~~~ */
 	override function onMouseMove(x:Float, y:Float) {
 		pear.onMouseMove(x, y);
 	}
@@ -72,10 +73,7 @@ class PearShaped extends Application {
 		pear.onMouseUp(x, y, button);
 	}
 
-	override function onMouseWheel (deltaX:Float, deltaY:Float, deltaMode:MouseWheelMode):Void {
+	override function onMouseWheel(deltaX:Float, deltaY:Float, deltaMode:MouseWheelMode):Void {
 		pear.onMouseScroll(deltaX, deltaY);
 	}
-
 }
-
-
