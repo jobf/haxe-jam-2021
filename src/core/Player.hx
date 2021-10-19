@@ -50,6 +50,10 @@ class Player {
 		}
 	}
 
+	public function toggleIsVulnerable() {
+		wave.toggleIsVulnerable();
+	}
+
 	public function selectLauncher(id:Int) {
 		wave.selectLauncher(id);
 	}

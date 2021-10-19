@@ -51,7 +51,9 @@ typedef LauncherConfig = {
 
 class Launcher {
 	var pear:Pear;
-	var stats:LauncherStats;
+
+	public var stats(default, null):LauncherStats;
+
 	var projectile:ProjectileStats;
 	var trajectory:Vector2;
 
@@ -66,6 +68,7 @@ class Launcher {
 	var rateLimiter:Delay;
 	var prepareShot:Delay;
 	var madeShot:Delay;
+	var isVulnerable:Bool;
 
 	public function new(pear_:Pear, config:LauncherConfig, opponentTargets_:Array<Body>, position:Vector2) {
 		pear = pear_;
@@ -73,6 +76,8 @@ class Launcher {
 		projectile = config.projectile;
 		trajectory = stats.trajectory.clone();
 		opponentTargets = opponentTargets_;
+
+		isVulnerable = false;
 
 		// ensure optionals are not null
 		if (stats.visualSize == null)
@@ -159,11 +164,13 @@ class Launcher {
 	}
 
 	public function takeDamage(body:Body) {
-		trace("hit");
-		var projectileData:ProjectileStats = body.data.projectileData;
-		if (projectileData != null) {
-			trace('damage ${projectileData.damagePower}');
-			stats.health -= projectileData.damagePower;
+		if (isVulnerable) {
+			trace("hit");
+			var projectileData:ProjectileStats = body.data.projectileData;
+			if (projectileData != null) {
+				trace('damage ${projectileData.damagePower}');
+				stats.health -= projectileData.damagePower;
+			}
 		}
 	}
 
@@ -174,15 +181,20 @@ class Launcher {
 		entity.cloth.isSelected = isSelected ? 1.0 : 0.0;
 	}
 
+	public function toggleIsVulnerable() {
+		isVulnerable = !isVulnerable;
+	}
+
 	function setNewState(nextState:LauncherState) {
 		switch (nextState) {
 			default:
 		}
 	}
 
-	function destroy() {
+	public function destroy() {
 		entity.setColor(Color.RED);
 		pear.scene.phys.world.listeners.remove(worldListener);
+		entity.remove();
 	}
 
 	function onPrepareShotFinish() {
@@ -214,9 +226,9 @@ class Launcher {
 	}
 
 	public function update(dt:Float) {
-		if (stats.health <= 0) {
-			destroy();
-		}
+		// if (stats.health <= 0) {
+		// 	destroy();
+		// }
 
 		if (projectiles.length < stats.maxProjectiles) {
 			rateLimiter.update(dt, onRateLimitFinish);
