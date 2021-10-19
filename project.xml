@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <project>
 	
-	<meta title="Pear Shaped Sample"  version="0.8.0" company="Disco" />
+	<meta title="Overlording"  version="0.8.0" company="Disco" />
 	
 	<android target-sdk-version="28" />
 	<!-- <meta build-number="714" /> --> <!-- let set the buildnumber manual (android) -->
