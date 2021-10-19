@@ -167,6 +167,15 @@ class Launcher {
 		}
 	}
 
+	public function setSelectedStatus(setIsSelectedTo:Bool) {
+		trace('highlighted $setIsSelectedTo');
+		if (setIsSelectedTo) {
+			// highlight
+		} else {
+			// turn off highlight
+		}
+	}
+
 	function setNewState(nextState:LauncherState) {
 		switch (nextState) {
 			default:

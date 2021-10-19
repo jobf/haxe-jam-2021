@@ -5,6 +5,7 @@ import core.Data.ElementKey;
 import core.Launcher;
 import core.Player;
 import echo.Body;
+import echo.Echo;
 import echo.data.Options.ListenerOptions;
 import lime.graphics.Image;
 import lime.math.Vector2;
@@ -25,6 +26,8 @@ enum Direction {
 
 class ScorchedEarth extends BaseScene {
 	var pieces:Array<IGamePiece> = [];
+	var playerATargets:Array<Body> = [];
+	var playerBTargets:Array<Body> = [];
 	var playerA:Player;
 	var playerB:Player;
 
@@ -58,6 +61,7 @@ class ScorchedEarth extends BaseScene {
 
 		pear.input.onMouseDown.connect((sig) -> {
 			trace('mouse is clicked ${sig.x}, ${sig.y}');
+			handleMouseClick();
 		});
 
 		pear.input.onKeyDown.connect((sig) -> {
@@ -84,20 +88,17 @@ class ScorchedEarth extends BaseScene {
 		launcherB.launcher.trajectory.x *= -1;
 		var launchersB = [launcherB, launcherB, launcherB];
 
-		var playerATargets:Array<Body> = [];
-		var playerBTargets:Array<Body> = [];
-
 		playerA.startWave({
 			launchers: [launchersA],
 			maximumActiveLaunchers: 1,
 			waveCenter: new Vector2(190, 330)
-		}, playerBTargets);
+		}, playerATargets, playerBTargets);
 
 		playerB.startWave({
 			launchers: launchersB,
 			maximumActiveLaunchers: 3,
 			waveCenter: new Vector2(pear.window.width - 190, 330)
-		}, playerATargets);
+		}, playerBTargets, playerATargets);
 	}
 
 	function pearUpdate(dt:Int, p:Pear) {
@@ -118,10 +119,18 @@ class ScorchedEarth extends BaseScene {
 	function handlePlayerKeyPress(key:KeyCode) {
 		if (playerAKeys.exists(key)) {
 			// todo ui for this
-			// playerA.launcher.alterTrajectory(playerAKeys[key]);
+			playerA.alterSelectedLauncherTrajectory(playerAKeys[key]);
 		}
 		// else if(playerBKeys.exists(key)){
 		// 	playerB.alterTrajectory(playerBKeys[key]);
 		// }
+	}
+
+	function handleMouseClick() {
+		Echo.check(phys.world, cursor.body, playerATargets, {
+			enter: (cursor, launcher, collisions) -> {
+				playerA.selectLauncher(launcher.id);
+			},
+		});
 	}
 }

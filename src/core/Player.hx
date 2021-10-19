@@ -7,6 +7,7 @@ import lime.math.Vector2;
 import ob.pear.GamePiece.ShapePiece;
 import ob.pear.Pear;
 import peote.view.Color;
+import scenes.ScorchedEarth.Direction;
 
 using ob.pear.Delay.DelayExtensions;
 
@@ -36,11 +37,10 @@ class Player {
 			}
 		}, isFlippedX);
 		lord.cloth.z = -30;
-		// lord.setFlippedX(isFlippedX);
 	}
 
-	public function startWave(waveConfig:WaveStats, opponentTargets:Array<Body>) {
-		wave = new Wave(pear, waveConfig, opponentTargets);
+	public function startWave(waveConfig:WaveStats, targets:Array<Body>, opponentTargets:Array<Body>) {
+		wave = new Wave(pear, waveConfig, targets, opponentTargets);
 		isWaveInProgress = true;
 	}
 
@@ -48,6 +48,13 @@ class Player {
 		if (isWaveInProgress) {
 			wave.update(dt);
 		}
-		// launcher.update(dt);
+	}
+
+	public function selectLauncher(id:Int) {
+		wave.selectLauncher(id);
+	}
+
+	public function alterSelectedLauncherTrajectory(direction:Direction) {
+		wave.alterSelectedLauncherTrajectory(direction);
 	}
 }
