@@ -94,6 +94,9 @@ class ScorchedEarth extends BaseScene {
 			waveCenter: new Vector2(190, 330)
 		}, playerATargets, playerBTargets);
 
+		// player is vulnerable by default, for testing we don't want that
+		playerA.toggleIsVulnerable();
+
 		playerB.startWave({
 			launchers: launchersB,
 			maximumActiveLaunchers: 3,

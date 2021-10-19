@@ -35,6 +35,10 @@ class Wave {
 		launcherLimiter.update(dt, onLauncherLimitFinish);
 		for (l in activeLaunchers) {
 			l.update(dt);
+			if (l.stats.health < 0) {
+				activeLaunchers.remove(l);
+				l.destroy();
+			}
 		}
 	}
 
@@ -57,6 +61,12 @@ class Wave {
 			if (selected != null) {
 				selected.toggleSelected();
 			}
+		}
+	}
+
+	public function toggleIsVulnerable() {
+		for (l in activeLaunchers) {
+			l.toggleIsVulnerable();
 		}
 	}
 
