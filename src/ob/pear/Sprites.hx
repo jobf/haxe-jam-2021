@@ -47,29 +47,31 @@ class ShapeElement implements Element {
 			#if debug
 			isDebug = true;
 			#end
-			textureProgram = fragmentShader.length > 0
-				&& isDebug ? "
+			var t = '';
+		#if html5
+			t = 'texture';
+		#else 
+			t	= 'texture2D'; 
+		#end
+			var composeTex0:String = '
 			vec4 composeTex (vec4 c, float sides, float selected)
 			{
 				vec4 shapeColor = compose(c, sides);
-				return mix(texture2D(uTexture0, vTexCoord), shapeColor, vec4(0.5));
+				return mix($t(uTexture0, vTexCoord), shapeColor, vec4(0.5));
 			}
-			" : "
+			';
+			var composeTex1:String = '
 			vec4 composeTex (vec4 c, float sides, float selected)
 			{
-				vec4 texColor = texture2D(uTexture0, vTexCoord);
+				vec4 texColor = $t(uTexture0, vTexCoord);
 				if(selected == 1.0 && texColor.a < 0.9){
 					texColor.r = 1.0;
 					texColor.a = 1.0;
 				}
 				return texColor;
 			}
-			";
-			#if html5
-			// here be hacks, abandon ship!
-			textureProgram = StringTools.replace(textureProgram, "texture2D", "texture");
-			#end
-
+			';
+			textureProgram = fragmentShader.length > 0 && isDebug ? composeTex0 : composeTex1;
 			fragmentShader += textureProgram;
 			programs[key].injectIntoFragmentShader(fragmentShader);
 			programs[key].setColorFormula('composeTex(color, sides, isSelected)');
