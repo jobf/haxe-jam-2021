@@ -33,37 +33,55 @@ class Visual {
 
 	public function start(enableRender:Bool = true) {
 		peoteView = new PeoteView(window);
-		display = new Display(-10000, -10000, window.width, window.height, 0x00000000);
-		peoteView.addDisplay(display);
+		
 		frameBufferTexture = new Texture(window.width, window.height, 2, 4, true, 1, 1); // 2 Slots
+
+		display = new Display(0, 0, window.width, window.height);
+		
+		peoteView.addDisplay(display); // this will only need to set the framebuffer-texture (needs a peote-view fix later!)
 		display.setFramebuffer(frameBufferTexture);
+		peoteView.removeDisplay(display); // no need to render this to the view anymore
+		
 		mainDisplay = new Display(0, 0, window.width, window.height, backgroundColor);
 		peoteView.addDisplay(mainDisplay);
 
 		var cameraBuffer = new Buffer<ViewElement>(1);
 		var cameraProgram = new Program(cameraBuffer);
-		cameraProgram.setTexture(frameBufferTexture, "frameBuffer");
+		
+		cameraProgram.setTexture(frameBufferTexture, ViewElement.TEXTURE_base, false);
 
 		cameraProgram.injectIntoFragmentShader("
-				/*
-					vec4 frag is result of following:
-					texture2D(uTexture0, vec2(vTexCoord.x * 0.5 + floor(mod(vTexPack0, 2.0)) * 0.5, vTexCoord.y * 1.0 + floor(floor(vTexPack0)/2.0) * 1.0));
-				*/
-				uniform float uTime;
+		
+				//vec4 frag is result of following:
+				//texture2D(uTexture0, vec2(vTexCoord.x * 0.5 + floor(mod(vTexPack0, 2.0)) * 0.5, vTexCoord.y * 1.0 + floor(floor(vTexPack0)/2.0) * 1.0));
 
-				vec4 compose(vec4 frag){
+				vec4 compose(vec4 frag) {
 					return frag;
 				}
-			");
+			"
+			//, true                    // to insert uTime uniform automatically
+			//, [customCameraUniforms]  // for later camera glsl postprocessing
+		);
+		
+		#if (html5)
+		// On webgl the default fragmentFloatPrecision is "medium" and shared uniforms
+		// between vertex- and fragmentshader have to be the same precision!
+		// cameraProgram.setFragmentFloatPrecision("high");
+		#end
 
-		cameraProgram.setColorFormula('compose(frameBuffer)');
+		// this is only need if not already defined inside ViewElement -> DEFAULT_COLOR_FORMULA
+		// cameraProgram.setColorFormula('compose( ${ViewElement.TEXTURE_base} * tint )');
 
 		cameraProgram.alphaEnabled = true;
 		cameraProgram.discardAtAlpha(null);
+		
 		mainDisplay.addProgram(cameraProgram);
 
 		var view = new ViewElement(0, 0, window.width, window.height, backgroundColor);
 		view.slot = 0;
+		
+		// try this (^_^):
+		// view.c = Color.RED;
 
 		cameraBuffer.addElement(view);
 
@@ -78,7 +96,6 @@ class Visual {
 	}
 
 	public function halt() {
-		peoteView.removeDisplay(display);
 		peoteView.stop();
 	}
 
@@ -102,11 +119,21 @@ class ViewElement implements Element {
 
 	@pivotX @set("Pivot") public var px:Int;
 	@pivotY @set("Pivot") public var py:Int;
+	
+	
+	// textures and colors to modify the colors of the pixels of a texture
 
-	@texSlot public var slot:Int = 0;
+	@texUnit("base") public var unitBase:Int = 0;  // 1 texture-unit called "base"
+	@texSlot("base") public var slot:Int = 0;
 
-	@color public var c:Color = 0xffff00ff;
+	@color("tint") public var c:Color = 0xffff00ff;  // only need if you wanna use inside ColorFormula to use for modify the texture-colors
+	
+	var DEFAULT_FORMULA_VARS = [ "base"  => 0xff0000ff ]; // if no texture was set up for this unit, this will be the default color-value instead
 
+	var DEFAULT_COLOR_FORMULA = "compose(base*tint)";
+
+	
+	
 	public function new(positionX:Int = 0, positionY:Int = 0, width:Int = 64, height:Int = 64, c:Int = 0xFFFF00FF) {
 		this.x = positionX;
 		this.y = positionY;
