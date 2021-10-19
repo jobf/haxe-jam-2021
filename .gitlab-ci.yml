@@ -29,7 +29,7 @@ build:linux:
 
 deploy:linux_itch:
   only:
-    - master
+    - release
   stage: deploy
   image: "dosowisko/butler:latest"
   dependencies:
