@@ -167,13 +167,11 @@ class Launcher {
 		}
 	}
 
-	public function setSelectedStatus(setIsSelectedTo:Bool) {
-		trace('highlighted $setIsSelectedTo');
-		if (setIsSelectedTo) {
-			// highlight
-		} else {
-			// turn off highlight
-		}
+	var isSelected:Bool;
+
+	public function toggleSelected() {
+		isSelected = !isSelected;
+		entity.cloth.isSelected = isSelected ? 1.0 : 0.0;
 	}
 
 	function setNewState(nextState:LauncherState) {

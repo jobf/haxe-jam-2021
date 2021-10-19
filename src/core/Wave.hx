@@ -42,14 +42,21 @@ class Wave {
 
 	public function selectLauncher(id:Int) {
 		trace('look for launcher with id $id');
-		for (l in activeLaunchers) {
-			l.setSelectedStatus(false);
-			if (l.entity.body.id == id) {
-				selected = l;
+		if (selected != null && selected.entity.body.id == id) {
+			// trying to select the already selected launcher
+			// so it must be not selected now
+			selected.toggleSelected();
+			selected = null;
+		} else {
+			// otherwise make a selection
+			for (l in activeLaunchers) {
+				if (l.entity.body.id == id) {
+					selected = l;
+				}
 			}
-		}
-		if (selected != null) {
-			selected.setSelectedStatus(true);
+			if (selected != null) {
+				selected.toggleSelected();
+			}
 		}
 	}
 

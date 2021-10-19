@@ -13,12 +13,11 @@ class ShapeElement implements Element {
 	@color public var color:Color;
 	@custom @varying public var radius:Float;
 	@custom @varying public var sides:Float = 3.0;
+	@custom @varying public var isSelected:Float = 0.0;
 	@posX @set("Position") public var x:Float;
 	@posY @set("Position") public var y:Float;
 	@sizeX @varying public var w:Int;
 	@sizeY @varying public var h:Int;
-	// @pivotX public var pivotX:Float;
-	// @pivotY public var pivotY:Float;
 	@pivotX @formula("w * 0.5 + px_offset") public var px_offset:Float;
 	@pivotY @formula("h * 0.5 + py_offset") public var py_offset:Float;
 
@@ -39,54 +38,41 @@ class ShapeElement implements Element {
 			case _: "";
 		}
 
-		// if(fragmentShader.length > 0){
-		// 	programs[key].injectIntoFragmentShader(fragmentShader);
-		// 	// programs[key].setColorFormula('compose(color, sides)');
-		// }
-
 		if (image != null) {
 			var texture = new Texture(image.width, image.height);
 			texture.setImage(image, 0);
 			programs[key].setTexture(texture, '_$key');
 			var isDebug = false;
 			var textureProgram:String = "";
-			// here be hacks, abandon ship!
 			#if debug
 			isDebug = true;
 			#end
+			textureProgram = fragmentShader.length > 0
+				&& isDebug ? "
+			vec4 composeTex (vec4 c, float sides, float selected)
+			{
+				vec4 shapeColor = compose(c, sides);
+				return mix(texture2D(uTexture0, vTexCoord), shapeColor, vec4(0.5));
+			}
+			" : "
+			vec4 composeTex (vec4 c, float sides, float selected)
+			{
+				vec4 texColor = texture2D(uTexture0, vTexCoord);
+				if(selected == 1.0 && texColor.a < 0.9){
+					texColor.r = 1.0;
+					texColor.a = 1.0;
+				}
+				return texColor;
+			}
+			";
 			#if html5
-			textureProgram = fragmentShader.length > 0
-				&& isDebug ? "
-					vec4 composeTex (vec4 c, float sides)
-					{
-						vec4 shapeColor = compose(c, sides);
-						return mix(texture(uTexture0, vTexCoord), shapeColor, vec4(0.5));
-					}
-					" : "
-					vec4 composeTex (vec4 c, float sides)
-					{
-						return texture(uTexture0, vTexCoord);
-					}
-					";
-			#else
-			textureProgram = fragmentShader.length > 0
-				&& isDebug ? "
-					vec4 composeTex (vec4 c, float sides)
-					{
-						vec4 shapeColor = compose(c, sides);
-						return mix(texture2D(uTexture0, vTexCoord), shapeColor, vec4(0.5));
-					}
-					" : "
-					vec4 composeTex (vec4 c, float sides)
-					{
-						return texture2D(uTexture0, vTexCoord);
-					}
-					";
+			// here be hacks, abandon ship!
+			textureProgram = StringTools.replace(textureProgram, "texture2D", "texture");
 			#end
 
 			fragmentShader += textureProgram;
 			programs[key].injectIntoFragmentShader(fragmentShader);
-			programs[key].setColorFormula('composeTex(color, sides)');
+			programs[key].setColorFormula('composeTex(color, sides, isSelected)');
 		} else {
 			if (fragmentShader.length > 0) {
 				programs[key].injectIntoFragmentShader(fragmentShader);
@@ -106,8 +92,6 @@ class ShapeElement implements Element {
 		this.w = Std.int(width);
 		this.h = Std.int(height);
 		this.radius = w / 2;
-		// pivotX = this.w / 2;
-		// pivotY = this.h / 2;
 		this.color = color;
 		this.sides = numSides;
 		if (!buffers.exists(key)) {
