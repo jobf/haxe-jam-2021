@@ -21,7 +21,7 @@ class Physical {
 
 	var worldOptions:WorldOptions;
 
-	public var totalMsElapsed(default, null):Float;
+	public var totalMsElapsed(default, null):Float = 0.0;
 
 	public function new(vis:Visual, echoOptions:WorldOptions = null) {
 		v = vis;
