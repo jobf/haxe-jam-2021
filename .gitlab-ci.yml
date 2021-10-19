@@ -1,0 +1,38 @@
+stages:
+  - build
+  - deploy
+
+build:linux:
+  only:
+    - release
+  stage: build
+  image: "jobf/haxeflixel-with-haxe-latest:latest"
+  script:
+    - haxelib install hxmath
+    - haxelib install echo
+    - haxelib install zigcall
+    # setup peote-view
+    - git clone https://github.com/maitag/peote-view.git
+    - haxelib dev peote-view peote-view
+    # setup ob parts
+    - haxelib git ob.exposehtml https://github.com/jobf/ob.exposehtml.git
+    # build
+    - lime build html5 -minify
+    - cd export/html5/bin/
+    - zip ../../../bin.zip -r .
+
+  artifacts:
+    paths:
+      - bin.zip
+    expire_in: 1 week
+
+
+deploy:linux_itch:
+  only:
+    - master
+  stage: deploy
+  image: "dosowisko/butler:latest"
+  dependencies:
+    - build:linux
+  script:
+    - butler push bin.zip cerealbuffer/haxe-jam-2021:html5
