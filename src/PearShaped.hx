@@ -16,6 +16,8 @@ import scenes.Title;
 class PearShaped extends Application {
 	var pear:Pear;
 	var sceneIndex:Int = 0;
+	
+	var readyToUpdate = false;
 
 	public function init(window:Window) {
 		pear = new Pear(window);
@@ -23,6 +25,7 @@ class PearShaped extends Application {
 		Preload.letsGo((imageMap) -> {
 			pear.changeScene(new ScorchedEarth(pear, imageMap));
 			// pear.changeScene(new Title(pear, imageMap));
+			readyToUpdate = true;
 		});
 	}
 
@@ -39,7 +42,7 @@ class PearShaped extends Application {
 	}
 
 	public override function update(deltaTime:Int):Void {
-		pear.update(deltaTime);
+		if (readyToUpdate) pear.update(deltaTime);
 	}
 
 	override function render(context:RenderContext) {
