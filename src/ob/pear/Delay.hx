@@ -10,14 +10,26 @@ typedef Delay = {
 }
 
 typedef Tween<T> = {
+	/**object being tweened**/
 	target:T,
+	/**resolution - in case want to check less frequently than every frame**/
 	stepMs:Float,
-	currentMs:Float,
-	isInProgress:Bool,
+	/**total step time - used to know a step duration was reached**/
+	?currentMs:Float,
+	/**how long since last looped**/
+	?totalMs:Float,
+	/** is tween started**/
+	?isInProgress:Bool,
+	/** will tween start again**/
 	isLooped:Bool,
-	onStart:T->Void,
-	onCheck:(T, Float) -> Bool,
-	onTrue:(T) -> Void,
+	/** data is arbitrary thus Dynamic**/
+	data:Dynamic,
+	/**target, data**/
+	onStart:(T, Dynamic) -> Void,
+	/**target, totalMs, data**/
+	onCheck:(T, Float, Dynamic) -> Bool,
+	/**target, data**/
+	onTrue:(T, Dynamic) -> Void,
 }
 
 class DelayFactory {
@@ -40,15 +52,19 @@ class DelayFactory {
 class TweenExtensions<T> {
 	static public function tween<T>(t:Tween<T>, elapsed:Float) {
 		if (!t.isInProgress) {
-			t.onStart(t.target);
+			t.onStart(t.target, t.data);
 			t.isInProgress = true;
+			t.currentMs = 0.0;
+			t.totalMs = 0.0;
 		}
 		t.currentMs += elapsed;
+		t.totalMs += elapsed;
 		if (t.currentMs >= t.stepMs) {
 			t.isInProgress = t.isLooped;
 			t.currentMs = 0;
-			if (t.onCheck(t.target, elapsed)) {
-				t.onTrue(t.target);
+			if (t.onCheck(t.target, t.totalMs, t.data)) {
+				t.onTrue(t.target, t.data);
+				t.totalMs = 0.0;
 			}
 		}
 	}

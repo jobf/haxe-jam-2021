@@ -21,8 +21,8 @@ class PearShaped extends Application {
 		pear = new Pear(window);
 
 		Preload.letsGo((imageMap) -> {
-			// pear.changeScene(new ScorchedEarth(pear, imageMap));
-			pear.changeScene(new Title(pear, imageMap));
+			pear.changeScene(new ScorchedEarth(pear, imageMap));
+			// pear.changeScene(new Title(pear, imageMap));
 		});
 	}
 

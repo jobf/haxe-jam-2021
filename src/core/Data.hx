@@ -48,9 +48,10 @@ class Barracks {
 			health: 100,
 			isFlippedX: false,
 			trajectory: new Vector2(130, -130),
-			states: [Idle => 0.7, Prepare => 0.2, Shoot => 0.1],
+			states: [Idle => 0.7, Prepare => 0.2, Shoot => 0.1, TakeDamage => 0.2],
 			distanceFromWaveMin: new Vector2(10, 10),
 			distanceFromWaveMax: new Vector2(300, 300),
+			movements: []
 		},
 		CAVALRY => {
 			imageKey: CAVALRY,
@@ -60,9 +61,19 @@ class Barracks {
 			health: 50,
 			isFlippedX: false,
 			trajectory: new Vector2(130, -130),
-			states: [Idle => 0.7, Prepare => 0.2, Shoot => 0.1],
+			states: [Idle => 0.7, Prepare => 0.2, Shoot => 0.1, TakeDamage => 0.2],
 			distanceFromWaveMin: new Vector2(10, 10),
 			distanceFromWaveMax: new Vector2(300, 300),
+			movements: [
+				{
+					velocity: new Vector2(15, 0),
+					durationMs: 2.0,
+				},
+				{
+					velocity: new Vector2(-15, 0),
+					durationMs: 2.0,
+				}
+			]
 		},
 	];
 

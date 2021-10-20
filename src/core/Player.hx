@@ -18,10 +18,13 @@ class Player {
 	var pear:Pear;
 	var wave:Wave;
 	var isWaveInProgress:Bool = false;
+	var tag:String;
+	public var isWaveDefeated(default, null):Bool = false;
 
-	public function new(pear_:Pear, position:Vector2, flipX:Bool) {
+	public function new(pear_:Pear, position:Vector2, flipX:Bool, tag_:String) {
 		pear = pear_;
 		isFlippedX = flipX;
+		tag = tag_;
 		lord = pear.initShape(ElementKey.LORD, Color.CYAN, {
 			x: position.x + 100,
 			y: position.y,
@@ -40,13 +43,15 @@ class Player {
 	}
 
 	public function startWave(waveConfig:WaveStats, targets:Array<Body>, opponentTargets:Array<Body>) {
-		wave = new Wave(pear, waveConfig, targets, opponentTargets);
+		wave = new Wave(pear, waveConfig, targets, opponentTargets, tag);
 		isWaveInProgress = true;
 	}
 
 	public function update(dt:Float) {
 		if (isWaveInProgress) {
 			wave.update(dt);
+			isWaveDefeated = wave.isDefeated;
+			isWaveInProgress = !isWaveDefeated;
 		}
 	}
 

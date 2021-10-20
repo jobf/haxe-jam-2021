@@ -30,6 +30,8 @@ class ScorchedEarth extends BaseScene {
 	var playerBTargets:Array<Body> = [];
 	var playerA:Player;
 	var playerB:Player;
+	var isRoundOver:Bool;
+	var isInProgress:Bool;
 
 	override public function new(pear:Pear, images:Map<ElementKey, Image>) {
 		super(pear, {
@@ -39,6 +41,8 @@ class ScorchedEarth extends BaseScene {
 			iterations: 5,
 			history: 1
 		}, images);
+		isRoundOver = true;
+		isInProgress = false;
 	}
 
 	override function init() {
@@ -67,10 +71,10 @@ class ScorchedEarth extends BaseScene {
 		});
 
 		var playerPosA = new Vector2(0, pear.window.height);
-		playerA = new Player(pear, playerPosA, false);
+		playerA = new Player(pear, playerPosA, false, "PLAYER");
 
 		var playerPosB = new Vector2(1000, pear.window.height);
-		playerB = new Player(pear, playerPosB, true);
+		playerB = new Player(pear, playerPosB, true, "CPU");
 
 		var launchersA = {
 			launcher: Barracks.Launchers[KENNEL],
@@ -97,15 +101,30 @@ class ScorchedEarth extends BaseScene {
 
 		playerB.startWave({
 			launchers: launchersB,
-			maximumActiveLaunchers: 3,
+			maximumActiveLaunchers: 2,
 			waveCenter: new Vector2(pear.window.width - 190, 330)
 		}, playerBTargets, playerATargets);
+
+		isInProgress = true;
 	}
 
 	override function update(deltaMs:Float) {
 		super.update(deltaMs);
+		
+		if(!isInProgress) return;
+		
 		playerA.update(deltaMs);
 		playerB.update(deltaMs);
+		
+		isRoundOver = playerB.isWaveDefeated || playerA.isWaveDefeated;
+		if(isRoundOver){
+			trace('round over player defeated ? ${playerA.isWaveDefeated} cpu defeated ? ${playerB.isWaveDefeated}');
+			isInProgress = false;
+			for( t in tweens){
+				t.isLooped = false;
+				t.isInProgress = false;
+			}
+		}
 	}
 
 	var playerAKeys:Map<KeyCode, Direction> = [W => Up, A => Left, S => Down, D => Right];
