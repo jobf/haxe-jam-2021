@@ -12,6 +12,7 @@ import peote.view.Color;
 import scenes.ScorchedEarth.Direction;
 
 using ob.pear.Delay.DelayExtensions;
+using ob.pear.Delay.TweenExtensions;
 
 enum LauncherState {
 	Idle;
@@ -88,6 +89,23 @@ class Launcher {
 			stats.maxProjectiles = 999999;
 
 		status = Idle;
+
+		pear.scene.tweens.push({
+			target: this,
+			stepMs: 0.32,
+			isLooped: true,
+			onStart: (launcher) -> {
+				launcher.entity.body.velocity.x = -10;
+			},
+			onCheck: (launcher, elapsed) -> {
+				return launcher.entity.body.x < 0;
+			},
+			onTrue: (launcher) -> {
+				launcher.entity.body.velocity.set(0, 0);
+			},
+			isInProgress: false,
+			currentMs: 0.0
+		});
 
 		// validate state times exist
 		for (s in [Idle, Prepare, Shoot]) {
@@ -225,15 +243,17 @@ class Launcher {
 		prepareShot.start();
 	}
 
+	var tween:Tween<Launcher>;
+
 	public function update(dt:Float) {
 		// if (stats.health <= 0) {
 		// 	destroy();
 		// }
 
 		if (projectiles.length < stats.maxProjectiles) {
-			rateLimiter.update(dt, onRateLimitFinish);
-			prepareShot.update(dt, onPrepareShotFinish);
-			madeShot.update(dt, onMadeShotFinish);
+			rateLimiter.wait(dt, onRateLimitFinish);
+			prepareShot.wait(dt, onPrepareShotFinish);
+			madeShot.wait(dt, onMadeShotFinish);
 		}
 
 		for (p in projectiles) {

@@ -22,8 +22,12 @@ class ShapeElement implements Element {
 	@pivotY @formula("h * 0.5 + py_offset") public var py_offset:Float;
 
 	@rotation public var rotation:Float;
-	@zIndex // max 0x3FFFFFFF , min -0xC0000000
-	public var z:Int = 0;
+	@zIndex public var z:Int = 0; // max 0x3FFFFFFF , min -0xC0000000
+	
+	
+	@texUnit("base") public var unitBase:Int = 0;         // 1 texture-unit called "base"	
+	var DEFAULT_FORMULA_VARS = [ "base"  => 0xff0000ff ]; // if no texture was set up for this unit, this will be the default color-value instead
+
 
 	public static var buffers(default, null):Map<Int, Buffer<ShapeElement>> = [];
 	public static var programs(default, null):Map<Int, Program> = [];
@@ -40,39 +44,39 @@ class ShapeElement implements Element {
 
 		if (image != null) {
 			var texture = new Texture(image.width, image.height);
-			texture.setImage(image, 0);
-			programs[key].setTexture(texture, '_$key');
+			texture.setImage(image);
+			
+			//programs[key].setTexture(texture, '_$key');
+			programs[key].setTexture(texture, 'base', false); // false at end is need to not recompile the shader after this command
+			
 			var isDebug = false;
-			var textureProgram:String = "";
 			#if debug
 			isDebug = true;
 			#end
-			textureProgram = fragmentShader.length > 0
-				&& isDebug ? "
-			vec4 composeTex (vec4 c, float sides, float selected)
-			{
-				vec4 shapeColor = compose(c, sides);
-				return mix(texture2D(uTexture0, vTexCoord), shapeColor, vec4(0.5));
-			}
-			" : "
-			vec4 composeTex (vec4 c, float sides, float selected)
-			{
-				vec4 texColor = texture2D(uTexture0, vTexCoord);
-				if(selected == 1.0 && texColor.a < 0.9){
-					texColor.r = 1.0;
-					texColor.a = 1.0;
-				}
-				return texColor;
-			}
-			";
-			#if html5
-			// here be hacks, abandon ship!
-			textureProgram = StringTools.replace(textureProgram, "texture2D", "texture");
-			#end
-
-			fragmentShader += textureProgram;
+			
+			fragmentShader +=
+			if (fragmentShader.length > 0 && isDebug)
+				"
+					vec4 composeTex (vec4 texColor, vec4 c, float sides, float selected)
+					{
+						vec4 shapeColor = compose(c, sides);
+						return mix(texColor, shapeColor, vec4(0.5));
+					}
+				";
+			else
+				"
+					vec4 composeTex (vec4 texColor, vec4 c, float sides, float selected)
+					{
+						if(selected == 1.0 && texColor.a < 0.9){
+							texColor.r = 1.0;
+							texColor.a = 1.0;
+						}
+						return texColor;
+					}
+				";
+			
 			programs[key].injectIntoFragmentShader(fragmentShader);
-			programs[key].setColorFormula('composeTex(color, sides, isSelected)');
+			programs[key].setColorFormula('composeTex(base, color, sides, isSelected)');
 		} else {
 			if (fragmentShader.length > 0) {
 				programs[key].injectIntoFragmentShader(fragmentShader);
@@ -85,7 +89,7 @@ class ShapeElement implements Element {
 	}
 
 	public function new(key:Int, positionX:Float, positionY:Float, width:Float, height:Float, color:Color, shape:ShapeType, numSides:Float = 3,
-			isFlippedX:Bool) {
+	                    isFlippedX:Bool) {
 		this.x = positionX;
 		this.y = positionY;
 		width = isFlippedX ? width * -1 : width;
@@ -106,11 +110,13 @@ class ShapeElement implements Element {
 
 class ShapeShaders {
 	public static var CIRCLE:String = "
-		float circle(in vec2 st, in float radius){
+		float circle(in vec2 st, in float radius)
+		{
 			vec2 dist = st-vec2(0.5);
 			return 1.-smoothstep(radius-(radius*0.01),
-									radius+(radius*0.01),
-									dot(dist,dist)*4.0);
+			                     radius+(radius*0.01),
+			                     dot(dist,dist)*4.0
+			                    );
 		}
 
 		vec4 compose (vec4 c, float sides)

@@ -16,6 +16,7 @@ import ob.pear.Signals.MouseButtonSignal;
 import peote.view.Color;
 
 class Pear {
+	public var totalMsElapsed(default, null):Float = 0.0;
 	public var scene(default, null):Scene;
 	public var window(default, null):Window;
 	public var delayFactory(default, null):DelayFactory;
@@ -60,14 +61,16 @@ class Pear {
 		scene.vis.toggleRender();
 	}
 
-	public var onUpdate:(Int, Pear) -> Void;
+	public var onUpdate:(Float, Pear) -> Void;
 
-	function defaultOnUpdate(deltaTime:Int, core:Pear):Void {
-		scene.phys.update(deltaTime);
+	function defaultOnUpdate(deltaMs:Float, core:Pear):Void {
+		scene.update(deltaMs);
 	}
 
 	public function update(deltaTime:Int):Void {
-		onUpdate(deltaTime, this);
+		var deltaMs = deltaTime / 1000;
+		totalMsElapsed += deltaMs;
+		onUpdate(deltaMs, this);
 	}
 
 	public function render() {
