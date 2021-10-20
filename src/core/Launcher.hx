@@ -31,6 +31,11 @@ typedef ProjectileStats = {
 	damagePower:Float
 };
 
+typedef Movement = {
+	velocity:Vector2,
+	durationMs:Float
+};
+
 typedef LauncherStats = {
 	imageKey:ElementKey,
 	isFlippedX:Bool,
@@ -42,7 +47,8 @@ typedef LauncherStats = {
 	?maxProjectiles:Int,
 	trajectory:Vector2,
 	distanceFromWaveMax:Vector2,
-	distanceFromWaveMin:Vector2
+	distanceFromWaveMin:Vector2,
+	movements:Array<Movement>
 };
 
 typedef LauncherConfig = {
@@ -69,16 +75,21 @@ class Launcher {
 	var rateLimiter:Delay;
 	var prepareShot:Delay;
 	var madeShot:Delay;
+	var recoverFromHit:Delay;
 	var isVulnerable:Bool;
+	var tag:String;
+	public var hp(default, null):Float;
 
-	public function new(pear_:Pear, config:LauncherConfig, opponentTargets_:Array<Body>, position:Vector2) {
+	public function new(pear_:Pear, config:LauncherConfig, opponentTargets_:Array<Body>, position:Vector2, tag_:String) {
 		pear = pear_;
+		tag = tag_;
 		stats = config.launcher;
 		projectile = config.projectile;
 		trajectory = stats.trajectory.clone();
+		hp = stats.health;
 		opponentTargets = opponentTargets_;
 
-		isVulnerable = false;
+		isVulnerable = true;
 
 		// ensure optionals are not null
 		if (stats.visualSize == null)
@@ -89,26 +100,33 @@ class Launcher {
 			stats.maxProjectiles = 999999;
 
 		status = Idle;
+		var movementIndex = 0;
 
-		pear.scene.tweens.push({
-			target: this,
-			stepMs: 0.32,
-			isLooped: true,
-			onStart: (launcher) -> {
-				launcher.entity.body.velocity.x = -10;
-			},
-			onCheck: (launcher, elapsed) -> {
-				return launcher.entity.body.x < 0;
-			},
-			onTrue: (launcher) -> {
-				launcher.entity.body.velocity.set(0, 0);
-			},
-			isInProgress: false,
-			currentMs: 0.0
-		});
-
+		// set up movement pattern
+		if (stats.movements.length > 0) {
+			pear.scene.tweens.push({
+				data: new Vector2(0, 0),
+				target: this,
+				stepMs: 0.32,
+				isLooped: true,
+				onStart: (launcher, data) -> {
+					launcher.entity.body.velocity.x = stats.movements[movementIndex].velocity.x;
+					launcher.entity.body.velocity.y = stats.movements[movementIndex].velocity.y;
+				},
+				onCheck: (launcher:Launcher, totalMs:Float, data:Vector2) -> {
+					return totalMs >= stats.movements[movementIndex].durationMs;
+				},
+				onTrue: (launcher, data:Vector2) -> {
+					movementIndex++;
+					if (movementIndex > stats.movements.length - 1) {
+						movementIndex = 0;
+					}
+					launcher.entity.body.velocity.x = stats.movements[movementIndex].velocity.x;
+				},
+			});
+		}
 		// validate state times exist
-		for (s in [Idle, Prepare, Shoot]) {
+		for (s in [Idle, Prepare, Shoot, TakeDamage]) {
 			if (!stats.states.exists(s)) {
 				throw 'Launcher must have state time defined for $s';
 			}
@@ -118,7 +136,8 @@ class Launcher {
 		rateLimiter = pear.delayFactory.Default(stats.states[Idle], true, true);
 		prepareShot = pear.delayFactory.Default(stats.states[Prepare], true, false);
 		madeShot = pear.delayFactory.Default(stats.states[Shoot], true, false);
-
+		recoverFromHit = pear.delayFactory.Default(stats.states[TakeDamage]);
+		
 		// position is center of entity so adjust to fit.
 		position.x += stats.bodySize.x * 0.5; // nudge towards right of screen by 50% of size
 		position.y -= stats.bodySize.y * 0.5; // nudge towards top of screen by 50% of size
@@ -141,10 +160,14 @@ class Launcher {
 		}, {vWidth: stats.visualSize.x, vHeight: stats.visualSize.y}, stats.isFlippedX);
 
 		entity.cloth.z = -1;
+		entity.body.data.owner = this;
 
 		worldListener = pear.scene.phys.world.listen(opponentTargets, projectileBodies, {
-			enter: (entity, projectile, collisions) -> {
-				takeDamage(projectile);
+			enter: (target, projectile, collisions) -> {
+				var launcher:Launcher = cast target.data.owner;
+				if(launcher != null){
+					launcher.takeDamage(projectile);
+				}
 			}
 		});
 
@@ -172,6 +195,7 @@ class Launcher {
 
 		projectiles.push(piece);
 		piece.body.data.projectileData = projectile;
+		piece.body.data.tag = tag;
 		piece.cloth.z = -15;
 		projectileBodies.push(piece.body);
 		return piece;
@@ -181,14 +205,18 @@ class Launcher {
 		projectile.body.velocity.set(trajectory.x, trajectory.y);
 	}
 
-	public function takeDamage(body:Body) {
+	public function takeDamage(projectileBody:Body) {
 		if (isVulnerable) {
-			trace("hit");
-			var projectileData:ProjectileStats = body.data.projectileData;
+			var log = '$tag launcher was hit';
+			recoverFromHit.isInProgress = true;
+			// entity.setColor(Color.RED);
+			entity.cloth.rotation += 30;
+			var projectileData:ProjectileStats = projectileBody.data.projectileData;
 			if (projectileData != null) {
-				trace('damage ${projectileData.damagePower}');
-				stats.health -= projectileData.damagePower;
+				log += ' by ${projectileBody.data.tag} projectile causing damaged ${projectileData.damagePower}';
+				hp -= projectileData.damagePower;
 			}
+			trace(log);
 		}
 	}
 
@@ -201,6 +229,7 @@ class Launcher {
 
 	public function toggleIsVulnerable() {
 		isVulnerable = !isVulnerable;
+		trace('isisVulnerable ? $isVulnerable');
 	}
 
 	function setNewState(nextState:LauncherState) {
@@ -210,6 +239,7 @@ class Launcher {
 	}
 
 	public function destroy() {
+		trace('$tag launcher destroyed');
 		entity.setColor(Color.RED);
 		pear.scene.phys.world.listeners.remove(worldListener);
 		entity.remove();
@@ -234,6 +264,18 @@ class Launcher {
 		entity.updateElement();
 	}
 
+	function onRecoverFromHit() {
+		// trace('...aim...');
+		status = Idle;
+		recoverFromHit.isInProgress = false;
+		entity.cloth.rotation = 0.0;
+		// entity.cloth.rotation -= 5;
+		// // entity.cloth.w = Std.int(stats.visualSize.x - 20);
+		// entity.updateElement();
+		// prepareShot.start();
+	}
+
+
 	function onRateLimitFinish() {
 		// trace('...aim...');
 		status = Prepare;
@@ -255,6 +297,7 @@ class Launcher {
 			prepareShot.wait(dt, onPrepareShotFinish);
 			madeShot.wait(dt, onMadeShotFinish);
 		}
+		recoverFromHit.wait(dt, onRecoverFromHit);
 
 		for (p in projectiles) {
 			if (pear.scene.phys.isOutOfBounds(p.body)) {

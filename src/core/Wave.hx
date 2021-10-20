@@ -22,24 +22,37 @@ class Wave {
 	var activeLaunchers:Array<Launcher> = [];
 	var targets:Array<Body>;
 	var opponentTargets:Array<Body>;
+	var tag:String;
+	var numLaunchersRemaining:Int;
+	public var isDefeated(default, null):Bool;
 
-	public function new(pear_:Pear, stats_:WaveStats, targets_:Array<Body>, opponentTargets_:Array<Body>) {
+	public function new(pear_:Pear, stats_:WaveStats, targets_:Array<Body>, opponentTargets_:Array<Body>, tag_:String) {
 		pear = pear_;
 		stats = stats_;
 		targets = targets_;
 		opponentTargets = opponentTargets_;
 		launcherLimiter = pear.delayFactory.Default(0.5, true, true);
+		tag = tag_;
+		numLaunchersRemaining = stats.launchers.length;
+		isDefeated = false;
 	}
 
 	public function update(dt:Float) {
+		if(isDefeated) return;
+		
 		launcherLimiter.wait(dt, onLauncherLimitFinish);
+		
 		for (l in activeLaunchers) {
 			l.update(dt);
-			if (l.stats.health < 0) {
+			if (l.hp <= 0) {
 				activeLaunchers.remove(l);
 				l.destroy();
+				numLaunchersRemaining--;
 			}
 		}
+
+		isDefeated = numLaunchersRemaining <= 0;
+
 	}
 
 	var selected:Launcher;
@@ -75,30 +88,24 @@ class Wave {
 			selected.alterTrajectory(direction);
 		}
 	}
-
+	var waveIndex:Int = 0;
 	function onLauncherLimitFinish() {
-		// if(activeLaunchers.length > 0){
-		// 	trace('ent bod ${activeLaunchers[0].entity.body.x}');
-		// 	trace('ent cloth ${activeLaunchers[0].entity.cloth.x}');
-		// }
-		if (activeLaunchers.length < stats.maximumActiveLaunchers && stats.launchers.length > 0) {
-			var next = stats.launchers[0];
-			// var launcherPos = new Vector2(1130,600);
+		if(stats.launchers.length == 0) {
+			trace('$tag has no launchers');
+			return;
+		};
 
+		if (activeLaunchers.length < stats.maximumActiveLaunchers && waveIndex < stats.launchers.length) {
+			var next = stats.launchers[waveIndex];
 			var positionOffset = Random.range_vector2(next.launcher.distanceFromWaveMin, next.launcher.distanceFromWaveMax);
 			if (next.launcher.isFlippedX) {
 				positionOffset.x *= -1;
 			}
 			var launcherPos = stats.waveCenter.add(positionOffset);
-			// new Vector2(599, 361);
-
-			// var launcherTraj = new Vector2(-130, -130);
-			var launcher = new Launcher(pear, next, opponentTargets, launcherPos);
-			// var speed = -300;
-			// var moveBy = new Vector2(-800, 0);
-			// next.moveTo(speed, moveBy);
+			var launcher = new Launcher(pear, next, opponentTargets, launcherPos, tag);
 			activeLaunchers.push(launcher);
 			targets.push(launcher.entity.body);
+			waveIndex++;
 			#if debug
 			trace('launcher entered  ${launcher.entity.body.x}, ${launcher.entity.body.y}\n${next.launcher}');
 			#end
