@@ -23,16 +23,19 @@ class Wave {
 	var targets:Array<Body>;
 	var opponentTargets:Array<Body>;
 	var tag:String;
+	var launcherIndex:Int = 0;
 	var numLaunchersRemaining:Int;
 	public var isDefeated(default, null):Bool;
+	var isFlippedX:Bool;
 
-	public function new(pear_:Pear, stats_:WaveStats, targets_:Array<Body>, opponentTargets_:Array<Body>, tag_:String) {
+	public function new(pear_:Pear, stats_:WaveStats, targets_:Array<Body>, opponentTargets_:Array<Body>, tag_:String, isFlippedX_:Bool) {
 		pear = pear_;
 		stats = stats_;
 		targets = targets_;
 		opponentTargets = opponentTargets_;
 		launcherLimiter = pear.delayFactory.Default(0.5, true, true);
 		tag = tag_;
+		isFlippedX = isFlippedX_;
 		numLaunchersRemaining = stats.launchers.length;
 		isDefeated = false;
 	}
@@ -88,24 +91,23 @@ class Wave {
 			selected.alterTrajectory(direction);
 		}
 	}
-	var waveIndex:Int = 0;
 	function onLauncherLimitFinish() {
 		if(stats.launchers.length == 0) {
 			trace('$tag has no launchers');
 			return;
 		};
 
-		if (activeLaunchers.length < stats.maximumActiveLaunchers && waveIndex < stats.launchers.length) {
-			var next = stats.launchers[waveIndex];
+		if (activeLaunchers.length < stats.maximumActiveLaunchers && launcherIndex < stats.launchers.length) {
+			var next = stats.launchers[launcherIndex];
 			var positionOffset = Random.range_vector2(next.launcher.distanceFromWaveMin, next.launcher.distanceFromWaveMax);
-			if (next.launcher.isFlippedX) {
+			if (isFlippedX) {
 				positionOffset.x *= -1;
 			}
 			var launcherPos = stats.waveCenter.add(positionOffset);
-			var launcher = new Launcher(pear, next, opponentTargets, launcherPos, tag);
+			var launcher = new Launcher(pear, next, opponentTargets, launcherPos, tag, isFlippedX);
 			activeLaunchers.push(launcher);
 			targets.push(launcher.entity.body);
-			waveIndex++;
+			launcherIndex++;
 			#if debug
 			trace('launcher entered  ${launcher.entity.body.x}, ${launcher.entity.body.y}\n${next.launcher}');
 			#end

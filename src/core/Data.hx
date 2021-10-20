@@ -2,9 +2,15 @@ package core;
 
 import core.Launcher.LauncherStats;
 import core.Launcher.ProjectileStats;
+import core.Wave.WaveStats;
 import lime.graphics.Image;
 import lime.math.Vector2;
 import utils.Loader;
+
+class Global {
+	public static var wonLastRound:Int = 0;
+	public static var opponentIndex:Int = 0;
+}
 
 @:enum abstract ElementKey(Int) from Int to Int {
 	var RECT;
@@ -15,6 +21,10 @@ import utils.Loader;
 	var KENNEL;
 	var DOG;
 	var CAVALRY;
+	var ROUNDOVER;
+	var RESTART;
+	var QUIT;
+	var BOB;
 }
 
 class Preload {
@@ -23,7 +33,11 @@ class Preload {
 		LORD => 'assets/png/templord.png',
 		KENNEL => 'assets/png/beasthouse.png',
 		DOG => 'assets/png/dog.png',
-		CAVALRY => 'assets/png/cavalry.png'
+		CAVALRY => 'assets/png/cavalry.png',
+		ROUNDOVER => 'assets/png/round-over.png',
+		RESTART => 'assets/png/restart.png',
+		QUIT => 'assets/png/quit.png',
+		BOB => 'assets/png/templord.png', // todo real image for this
 	];
 
 	public static function letsGo(onLoadAll:Map<ElementKey, Image>->Void) {
@@ -46,7 +60,6 @@ class Barracks {
 			bodySize: new Vector2(150, 150),
 			visualSize: new Vector2(180, 180),
 			health: 100,
-			isFlippedX: false,
 			trajectory: new Vector2(130, -130),
 			states: [Idle => 0.7, Prepare => 0.2, Shoot => 0.1, TakeDamage => 0.2],
 			distanceFromWaveMin: new Vector2(10, 10),
@@ -59,7 +72,6 @@ class Barracks {
 			bodySize: new Vector2(340, 120),
 			visualSize: new Vector2(520, 280),
 			health: 50,
-			isFlippedX: false,
 			trajectory: new Vector2(130, -130),
 			states: [Idle => 0.7, Prepare => 0.2, Shoot => 0.1, TakeDamage => 0.2],
 			distanceFromWaveMin: new Vector2(10, 10),
@@ -85,6 +97,97 @@ class Barracks {
 			bodySize: new Vector2(16, 16),
 			visualSize: new Vector2(90, 90),
 			damagePower: 20
+		}
+	];
+}
+
+typedef OpponentConfig = {
+	name:String,
+	imageKey:ElementKey,
+	waves:Array<WaveStats>
+}
+
+class Rounds {
+	public static var opponents:Array<OpponentConfig> = [
+		{
+			name: "Bob the belidgerent",
+			imageKey: BOB,
+			waves: [
+				{
+					launchers: [
+						{
+							launcher: Barracks.Launchers[KENNEL],
+							projectile: Barracks.Projectiles[DOG]
+						}
+					],
+					maximumActiveLaunchers: 2,
+					waveCenter: new Vector2(1000, 330)
+				},
+				{
+					launchers: [
+						{
+							launcher: Barracks.Launchers[CAVALRY],
+							projectile: Barracks.Projectiles[DOG]
+						},
+						{
+							launcher: Barracks.Launchers[CAVALRY],
+							projectile: Barracks.Projectiles[DOG]
+						},
+						{
+							launcher: Barracks.Launchers[CAVALRY],
+							projectile: Barracks.Projectiles[DOG]
+						}
+					],
+					maximumActiveLaunchers: 2,
+					waveCenter: new Vector2(1000, 330)
+				},
+			]
+		},
+		{
+			name: "Karl of the Kabal",
+			imageKey: BOB,
+			waves: [
+				{
+					launchers: [
+						{
+							launcher: Barracks.Launchers[KENNEL],
+							projectile: Barracks.Projectiles[DOG]
+						},
+						{
+							launcher: Barracks.Launchers[CAVALRY],
+							projectile: Barracks.Projectiles[DOG]
+						},
+						{
+							launcher: Barracks.Launchers[CAVALRY],
+							projectile: Barracks.Projectiles[DOG]
+						},
+						{
+							launcher: Barracks.Launchers[CAVALRY],
+							projectile: Barracks.Projectiles[DOG]
+						}
+					],
+					maximumActiveLaunchers: 2,
+					waveCenter: new Vector2(1000, 330)
+				},
+				{
+					launchers: [
+						{
+							launcher: Barracks.Launchers[CAVALRY],
+							projectile: Barracks.Projectiles[DOG]
+						},
+						{
+							launcher: Barracks.Launchers[CAVALRY],
+							projectile: Barracks.Projectiles[DOG]
+						},
+						{
+							launcher: Barracks.Launchers[CAVALRY],
+							projectile: Barracks.Projectiles[DOG]
+						}
+					],
+					maximumActiveLaunchers: 2,
+					waveCenter: new Vector2(1000, 330)
+				},
+			]
 		}
 	];
 }

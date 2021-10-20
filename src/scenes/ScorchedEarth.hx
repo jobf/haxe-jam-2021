@@ -2,7 +2,8 @@ package scenes;
 
 import core.Data.Barracks;
 import core.Data.ElementKey;
-import core.Launcher;
+import core.Data.Global;
+import core.Data.Rounds;
 import core.Player;
 import echo.Body;
 import echo.Echo;
@@ -13,7 +14,6 @@ import lime.ui.KeyCode;
 import ob.pear.GamePiece.IGamePiece;
 import ob.pear.Pear;
 import ob.pear.Sprites.ShapeElement;
-import utils.Loader;
 
 using ob.pear.Delay.DelayExtensions;
 
@@ -26,10 +26,11 @@ enum Direction {
 
 class ScorchedEarth extends BaseScene {
 	var pieces:Array<IGamePiece> = [];
-	var playerATargets:Array<Body> = [];
-	var playerBTargets:Array<Body> = [];
+	var playerATargets:Array<Body>;
+	var playerBTargets:Array<Body>;
 	var playerA:Player;
 	var playerB:Player;
+	var isWaveOver:Bool;
 	var isRoundOver:Bool;
 	var isInProgress:Bool;
 
@@ -41,8 +42,6 @@ class ScorchedEarth extends BaseScene {
 			iterations: 5,
 			history: 1
 		}, images);
-		isRoundOver = true;
-		isInProgress = false;
 	}
 
 	override function init() {
@@ -71,58 +70,85 @@ class ScorchedEarth extends BaseScene {
 		});
 
 		var playerPosA = new Vector2(0, pear.window.height);
-		playerA = new Player(pear, playerPosA, false, "PLAYER");
+		var playerAConfig = {
+			name: "oh lord!",
+			imageKey: LORD,
+			waves: [
+				{
+					launchers: [
+						{
+							launcher: Barracks.Launchers[KENNEL],
+							projectile: Barracks.Projectiles[DOG]
+						}
+					],
+					maximumActiveLaunchers: 2,
+					waveCenter: new Vector2(190, 330)
+				},
+				{
+					launchers: [
+						{
+							launcher: Barracks.Launchers[CAVALRY],
+							projectile: Barracks.Projectiles[DOG]
+						},
+						{
+							launcher: Barracks.Launchers[CAVALRY],
+							projectile: Barracks.Projectiles[DOG]
+						},
+						{
+							launcher: Barracks.Launchers[CAVALRY],
+							projectile: Barracks.Projectiles[DOG]
+						}
+					],
+					maximumActiveLaunchers: 2,
+					waveCenter: new Vector2(190, 330)
+				},
+			]
+		}
+		playerA = new Player(pear, playerPosA, false, playerAConfig);
+		// player is vulnerable by default, for testing we don't want that
+		playerA.toggleIsVulnerable(); // todo - check this works `^_^
 
 		var playerPosB = new Vector2(1000, pear.window.height);
-		playerB = new Player(pear, playerPosB, true, "CPU");
+		playerB = new Player(pear, playerPosB, true, Rounds.opponents[Global.opponentIndex]);
 
-		var launchersA = {
-			launcher: Barracks.Launchers[KENNEL],
-			projectile: Barracks.Projectiles[DOG]
-		};
-
-		var launcherB:LauncherConfig = {
-			launcher: Barracks.Launchers[CAVALRY],
-			projectile: Barracks.Projectiles[DOG]
-		};
-		// playerB is facing opposie direction
-		launcherB.launcher.isFlippedX = true;
-		launcherB.launcher.trajectory.x *= -1;
-		var launchersB = [launcherB, launcherB, launcherB];
-
-		playerA.startWave({
-			launchers: [launchersA],
-			maximumActiveLaunchers: 1,
-			waveCenter: new Vector2(190, 330)
-		}, playerATargets, playerBTargets);
-
-		// player is vulnerable by default, for testing we don't want that
-		playerA.toggleIsVulnerable();
-
-		playerB.startWave({
-			launchers: launchersB,
-			maximumActiveLaunchers: 2,
-			waveCenter: new Vector2(pear.window.width - 190, 330)
-		}, playerBTargets, playerATargets);
-
+		isWaveOver = false;
+		isRoundOver = false;
 		isInProgress = true;
+		Global.wonLastRound = 0;
+
+		startNextWave();
+	}
+
+	function startNextWave() {
+		playerATargets = [];
+		playerBTargets = [];
+		playerA.startWave(playerATargets, playerBTargets);
+		playerB.startWave(playerBTargets, playerATargets);
 	}
 
 	override function update(deltaMs:Float) {
 		super.update(deltaMs);
-		
-		if(!isInProgress) return;
-		
+
+		if (!isInProgress)
+			return;
+
 		playerA.update(deltaMs);
 		playerB.update(deltaMs);
-		
-		isRoundOver = playerB.isWaveDefeated || playerA.isWaveDefeated;
-		if(isRoundOver){
+
+		isRoundOver = playerA.isDefeated || playerB.isDefeated;
+		if (isRoundOver) {
 			trace('round over player defeated ? ${playerA.isWaveDefeated} cpu defeated ? ${playerB.isWaveDefeated}');
 			isInProgress = false;
-			for( t in tweens){
+			for (t in tweens) {
+				// t.onStop(); todo function for cancel
 				t.isLooped = false;
 				t.isInProgress = false;
+			}
+			pear.changeScene(new RoundEnded(pear, images));
+		} else {
+			isWaveOver = playerB.isWaveDefeated || playerA.isWaveDefeated;
+			if (isWaveOver) {
+				startNextWave();
 			}
 		}
 	}

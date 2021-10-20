@@ -38,7 +38,6 @@ typedef Movement = {
 
 typedef LauncherStats = {
 	imageKey:ElementKey,
-	isFlippedX:Bool,
 	shape:ShapeType,
 	bodySize:Vector2,
 	?visualSize:Vector2,
@@ -79,13 +78,18 @@ class Launcher {
 	var isVulnerable:Bool;
 	var tag:String;
 	public var hp(default, null):Float;
+	var isFlippedX:Bool;
 
-	public function new(pear_:Pear, config:LauncherConfig, opponentTargets_:Array<Body>, position:Vector2, tag_:String) {
+	public function new(pear_:Pear, config:LauncherConfig, opponentTargets_:Array<Body>, position:Vector2, tag_:String, isFlippedX_:Bool) {
 		pear = pear_;
 		tag = tag_;
+		isFlippedX = isFlippedX_;
 		stats = config.launcher;
 		projectile = config.projectile;
 		trajectory = stats.trajectory.clone();
+		if(isFlippedX){
+			trajectory.x *= -1;
+		}
 		hp = stats.health;
 		opponentTargets = opponentTargets_;
 
@@ -157,7 +161,7 @@ class Launcher {
 				height: stats.bodySize.y,
 				solid: false,
 			}
-		}, {vWidth: stats.visualSize.x, vHeight: stats.visualSize.y}, stats.isFlippedX);
+		}, {vWidth: stats.visualSize.x, vHeight: stats.visualSize.y}, isFlippedX);
 
 		entity.cloth.z = -1;
 		entity.body.data.owner = this;
@@ -191,7 +195,7 @@ class Launcher {
 				solid: false,
 			}
 		}, {vWidth: projectile.visualSize.x, vHeight: projectile.visualSize.y},
-			stats.isFlippedX);
+			isFlippedX);
 
 		projectiles.push(piece);
 		piece.body.data.projectileData = projectile;
