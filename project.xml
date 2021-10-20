@@ -36,13 +36,13 @@
 	<haxedef name="peoteview_vertexarrayobjects" />
 
 
-	<haxedef name="peoteview_debug_macro" />
+	<haxedef name="peoteview_debug_macro"  if="debug"/>
 	<!--<haxedef name="peoteview_debug_buffer" />-->
-	<haxedef name="peoteview_debug_view" />
+	<haxedef name="peoteview_debug_view" if="debug" />
 	<!--<haxedef name="peoteview_debug_display" />-->
 	<!--<haxedef name="peoteview_debug_program" />-->
 	<!--<haxedef name="peoteview_debug_texture" />-->
-	<haxedef name="peoteview_debug_shader" />
+	<haxedef name="peoteview_debug_shader"  if="debug"/>
 
 	<!-- <haxedef name="webgl-debug" /> --> <!-- try with chrome and look here: https://www.khronos.org/webgl/wiki/Debugging -->
 	<!-- <haxedef name="source-map-content" /> --> <!-- to debug with chrome it needs also "-debug" -->

@@ -13,31 +13,37 @@ class Scene {
 	public var tweens(default, null):Array<Tween<Dynamic>>;
 
 	var pear:Pear;
+	var canUpdate:Bool;
 
 	public function new(pear:Pear, options:WorldOptions = null, backgroundColor:Color = Color.GREY1) {
 		this.pear = pear;
 		vis = new Visual(pear.window, backgroundColor);
 		phys = new Physical(vis, options);
 		tweens = [];
+		canUpdate = false;
 	}
 
 	/** initialise the scene - overide this and do set up here, not in new**/
 	public function init() {
 		vis.start();
 		phys.start();
+		canUpdate = true;
 	}
 
 	public function update(deltaTimeMs:Float):Void {
-		phys.update(deltaTimeMs);
-		for (t in tweens) {
-			t.tween(deltaTimeMs);
+		if(canUpdate){
+			phys.update(deltaTimeMs);
+			for (t in tweens) {
+				t.tween(deltaTimeMs);
+			}
 		}
 	}
 
 	/** clean up the scene  **/
 	public function halt() {
-		vis.halt();
+		canUpdate = false;
 		phys.halt();
+		vis.halt();
 	}
 }
 

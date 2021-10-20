@@ -47,12 +47,13 @@ class Pear {
 	}
 
 	public function changeScene(nextScene:Scene, autoInit:Bool = true) {
-		// reset input to clear old connections
-		input = new Signals();
-
 		if (scene != null) {
 			scene.halt();
 		}
+		
+		// reset input to clear old connections
+		input = new Signals();
+
 		scene = nextScene;
 		scene.init();
 	}

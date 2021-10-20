@@ -10,6 +10,7 @@ import lime.ui.MouseButton;
 import lime.ui.MouseWheelMode;
 import lime.ui.Window;
 import ob.pear.Pear;
+import scenes.RoundEnded;
 import scenes.ScorchedEarth;
 import scenes.Title;
 
@@ -23,8 +24,9 @@ class PearShaped extends Application {
 		pear = new Pear(window);
 
 		Preload.letsGo((imageMap) -> {
-			pear.changeScene(new ScorchedEarth(pear, imageMap));
-			// pear.changeScene(new Title(pear, imageMap));
+			// pear.changeScene(new RoundEnded(pear, imageMap));
+			// pear.changeScene(new ScorchedEarth(pear, imageMap));
+			pear.changeScene(new Title(pear, imageMap));
 			readyToUpdate = true;
 		});
 	}

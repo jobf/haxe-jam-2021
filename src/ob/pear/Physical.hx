@@ -20,6 +20,7 @@ class Physical {
 	var pieces(default, null):Array<IGamePiece> = [];
 
 	var worldOptions:WorldOptions;
+	var canUpdate:Bool;
 
 	public function new(vis:Visual, echoOptions:WorldOptions = null) {
 		v = vis;
@@ -29,6 +30,7 @@ class Physical {
 			gravity_y: 100,
 			iterations: 2
 		};
+		canUpdate = false;
 	}
 
 	public function isOutOfBounds(b:Body) {
@@ -39,17 +41,21 @@ class Physical {
 	}
 
 	public function start() {
+		canUpdate = true;
 		world = Echo.start(worldOptions);
 	}
 
 	public function halt() {
+		canUpdate = false;
 		world.dispose();
 	}
 
 	public function update(deltaMs:Float) {
-		world.step(deltaMs);
-		for (p in pieces) {
-			p.update(deltaMs);
+		if(canUpdate){
+			world.step(deltaMs);
+			for (p in pieces) {
+				p.update(deltaMs);
+			}
 		}
 	}
 
