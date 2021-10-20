@@ -1,12 +1,16 @@
 package ob.pear;
 
 import echo.data.Options.WorldOptions;
+import ob.pear.Delay.Tween;
 import ob.pear.GamePiece.ShapePiece;
 import peote.view.Color;
+
+using ob.pear.Delay.TweenExtensions;
 
 class Scene {
 	public var vis(default, null):Visual;
 	public var phys(default, null):Physical;
+	public var tweens(default, null):Array<Tween<Dynamic>>;
 
 	var pear:Pear;
 
@@ -14,12 +18,20 @@ class Scene {
 		this.pear = pear;
 		vis = new Visual(pear.window, backgroundColor);
 		phys = new Physical(vis, options);
+		tweens = [];
 	}
 
 	/** initialise the scene - overide this and do set up here, not in new**/
 	public function init() {
 		vis.start();
 		phys.start();
+	}
+
+	public function update(deltaTimeMs:Float):Void {
+		phys.update(deltaTimeMs);
+		for (t in tweens) {
+			t.tween(deltaTimeMs);
+		}
 	}
 
 	/** clean up the scene  **/

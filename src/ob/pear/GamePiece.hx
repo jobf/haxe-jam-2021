@@ -67,14 +67,6 @@ class ShapePiece implements IGamePiece {
 	public function updateElement() {
 		buffer.updateElement(cloth);
 	}
-
-	// public function setFlippedX(isFlipped:Bool) {
-	// 	if (isXFlipped != isFlipped) {
-	// 		isXFlipped = isFlipped;
-	// 		cloth.w = cloth.w * -1;
-	// 		updateElement();
-	// 	}
-	// }
 }
 
 class MultiShapePiece implements IGamePiece {

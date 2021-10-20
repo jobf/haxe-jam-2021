@@ -21,8 +21,6 @@ class Physical {
 
 	var worldOptions:WorldOptions;
 
-	public var totalMsElapsed(default, null):Float = 0.0;
-
 	public function new(vis:Visual, echoOptions:WorldOptions = null) {
 		v = vis;
 		worldOptions = echoOptions != null ? echoOptions : {
@@ -48,14 +46,11 @@ class Physical {
 		world.dispose();
 	}
 
-	public function update(deltaTime:Int):Float {
-		var deltaMs = deltaTime / 1000;
-		totalMsElapsed += deltaMs;
+	public function update(deltaMs:Float) {
 		world.step(deltaMs);
 		for (p in pieces) {
 			p.update(deltaMs);
 		}
-		return deltaMs;
 	}
 
 	public function initMultiShape(elementKey:Int, colour:Color, options:BodyOptions):MultiShapePiece {

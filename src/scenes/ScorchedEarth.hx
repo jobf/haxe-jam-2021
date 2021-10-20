@@ -43,8 +43,6 @@ class ScorchedEarth extends BaseScene {
 
 	override function init() {
 		super.init();
-		pear.onUpdate = pearUpdate;
-
 		ShapeElement.init(vis.display, RECT, LORD, images[LORD]);
 		ShapeElement.init(vis.display, RECT, KENNEL, images[KENNEL]);
 		ShapeElement.init(vis.display, CIRCLE, DOG, images[DOG]);
@@ -104,8 +102,8 @@ class ScorchedEarth extends BaseScene {
 		}, playerBTargets, playerATargets);
 	}
 
-	function pearUpdate(dt:Int, p:Pear) {
-		var deltaMs = phys.update(dt);
+	override function update(deltaMs:Float) {
+		super.update(deltaMs);
 		playerA.update(deltaMs);
 		playerB.update(deltaMs);
 	}

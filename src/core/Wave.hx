@@ -32,7 +32,7 @@ class Wave {
 	}
 
 	public function update(dt:Float) {
-		launcherLimiter.update(dt, onLauncherLimitFinish);
+		launcherLimiter.wait(dt, onLauncherLimitFinish);
 		for (l in activeLaunchers) {
 			l.update(dt);
 			if (l.stats.health < 0) {
