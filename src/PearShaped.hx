@@ -22,6 +22,7 @@ class PearShaped extends Application {
 	var readyToUpdate = false;
 
 	public function init(window:Window) {
+		window.cursor = null;
 		pear = new Pear(window);
 
 		Preload.letsGo((imageMap) -> {
