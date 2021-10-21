@@ -10,6 +10,8 @@ import lime.ui.MouseButton;
 import lime.ui.MouseWheelMode;
 import lime.ui.Window;
 import ob.pear.Pear;
+import ob.pear.Text.GlyphStyleTiled;
+import peote.text.Font;
 import scenes.ArtTestScene;
 import scenes.RoundEnded;
 import scenes.ScorchedEarth;
@@ -24,16 +26,18 @@ class PearShaped extends Application {
 
 	public function init(window:Window) {
 		window.cursor = null;
-		pear = new Pear(window);
-
-		Preload.letsGo((imageMap) -> {
-			// pear.changeScene(new RoundEnded(pear, imageMap));
-			// pear.changeScene(new ScorchedEarth(pear, imageMap));
-			// pear.changeScene(new Title(pear, imageMap));
-			// pear.changeScene(new ArtTestScene(pear, imageMap));
-			pear.changeScene(new WaveSetupScene(pear, imageMap));
-			readyToUpdate = true;
+		new Font<GlyphStyleTiled>('assets/fonts/peote.json').load((font) -> {
+			pear = new Pear(window, font);
+			Preload.letsGo((imageMap) -> {
+				// pear.changeScene(new RoundEnded(pear, imageMap));
+				// pear.changeScene(new ScorchedEarth(pear, imageMap));
+				// pear.changeScene(new Title(pear, imageMap));
+				// pear.changeScene(new ArtTestScene(pear, imageMap));
+				pear.changeScene(new WaveSetupScene(pear, imageMap));
+				readyToUpdate = true;
+			});
 		});
+		
 	}
 
 	override function onWindowCreate():Void {

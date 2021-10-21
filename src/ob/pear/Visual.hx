@@ -4,6 +4,8 @@ import echo.data.Types.ShapeType;
 import lime.ui.Window;
 import ob.pear.Sprites.ShapeElement;
 import ob.pear.Text;
+import peote.text.Font;
+import peote.text.FontProgram;
 import peote.view.Buffer;
 import peote.view.Color;
 import peote.view.Display;
@@ -21,11 +23,15 @@ class Visual {
 	var mainDisplay:Display;
 	var window:Window;
 	var backgroundColor:Color;
+	var font:Font<GlyphStyleTiled>;
+	var fontProgram:FontProgram<GlyphStyleTiled>;
 	public var text(default, null):Text;
 
-	public function new(window:Window, backgroundColor:Color = Color.GREY1) {
+	public function new(window:Window, font_:Font<GlyphStyleTiled>, backgroundColor:Color = Color.GREY1) {
 		this.window = window;
 		this.backgroundColor = backgroundColor;
+	font = font_;
+		
 	}
 
 	public function toggleRender() {
@@ -35,9 +41,12 @@ class Visual {
 	public function start(enableRender:Bool = true) {
 		peoteView = new PeoteView(window);
 		
-		frameBufferTexture = new Texture(window.width, window.height, 2, 4, true, 1, 1); // 2 Slots
 
+		frameBufferTexture = new Texture(window.width, window.height, 2, 4, true, 1, 1); // 2 Slots
+		
 		display = new Display(0, 0, window.width, window.height);
+
+	
 		
 		peoteView.addDisplay(display); // this will only need to set the framebuffer-texture (needs a peote-view fix later!)
 		display.setFramebuffer(frameBufferTexture);
@@ -95,12 +104,18 @@ class Visual {
 		peoteView.addFramebufferDisplay(display);
 		peoteView.start();
 
-		text = new Text(display);
+		var glyphStyle = new GlyphStyleTiled();
+		glyphStyle.width = font.config.width;
+		glyphStyle.height = font.config.height;
+		fontProgram = new FontProgram<GlyphStyleTiled>(font, glyphStyle);
+		mainDisplay.addProgram(fontProgram);
+		text = new Text(fontProgram);
 	}
 
 	public function halt() {
 		peoteView.stop();
 	}
+;
 }
 
 class ViewElement implements Element {
