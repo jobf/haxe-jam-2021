@@ -14,6 +14,7 @@ import scenes.ArtTestScene;
 import scenes.RoundEnded;
 import scenes.ScorchedEarth;
 import scenes.Title;
+import scenes.WaveSetupScene;
 
 class PearShaped extends Application {
 	var pear:Pear;
@@ -29,7 +30,8 @@ class PearShaped extends Application {
 			// pear.changeScene(new RoundEnded(pear, imageMap));
 			// pear.changeScene(new ScorchedEarth(pear, imageMap));
 			// pear.changeScene(new Title(pear, imageMap));
-			pear.changeScene(new ArtTestScene(pear, imageMap));
+			// pear.changeScene(new ArtTestScene(pear, imageMap));
+			pear.changeScene(new WaveSetupScene(pear, imageMap));
 			readyToUpdate = true;
 		});
 	}
@@ -49,11 +51,6 @@ class PearShaped extends Application {
 	public override function update(deltaTime:Int):Void {
 		if (readyToUpdate) pear.update(deltaTime);
 	}
-
-	// no longer needed thanks to  RenderList for updating the Framebuffer Textures
-	// override function render(context:RenderContext) {
-	// 	pear.render();
-	// }
 
 	/* ~~~~~~~~~~~~~~~~~ Keyboard Events ~~~~~~~~~~~~~~~~~ */
 	override function onKeyDown(keyCode:KeyCode, modifier:KeyModifier):Void {

@@ -53,6 +53,7 @@ class ShapePiece implements IGamePiece {
 		} else {
 			cloth.color.alpha = color.alpha;
 		}
+		// buffer.updateElement(cloth);
 	}
 
 	public function remove():Void {

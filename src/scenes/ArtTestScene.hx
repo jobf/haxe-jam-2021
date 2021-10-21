@@ -11,6 +11,7 @@ import echo.data.Options.ListenerOptions;
 import lime.graphics.Image;
 import ob.pear.GamePiece.IGamePiece;
 import ob.pear.GamePiece.ShapePiece;
+import ob.pear.Input.ClickHandler;
 import ob.pear.Pear;
 import ob.pear.Sprites.ShapeElement;
 
@@ -70,22 +71,9 @@ class ArtTestScene extends BaseScene{
 
         var stats:WaveStats = {
             launchers: [
-				// {
-				// 	launcher: Barracks.Launchers[KENNEL],
-				// 	projectile: Projectiles.DOG_HURL
-				// },
-				{
-					launcher: Barracks.Launchers[launcherKNIGHTHOUSE],
-					projectile: Projectiles.KNIGHT
-				},
-				{
-					launcher: Barracks.Launchers[launcherBUBBLER],
-					projectile: Projectiles.BUBBLE
-				},
-				{
-					launcher: Barracks.Launchers[launcherARCHERS],
-					projectile: Projectiles.ARROW
-				}
+				Barracks.Launchers[launcherKNIGHTHOUSE],
+				Barracks.Launchers[launcherBUBBLER],
+				Barracks.Launchers[launcherARCHERS],
 			],
             maximumActiveLaunchers: 999
         };
@@ -109,63 +97,4 @@ class ArtTestScene extends BaseScene{
 
 	var bodiesA:Array<Body>;
 	var clickHandler:ClickHandler;
-}
-
-class ClickHandler{
-	public function new(mouseTargets:Array<Body>, cursor:ShapePiece, world:World) {
-		targets = mouseTargets;
-		this.cursor = cursor;
-		this.world = world;
-		world.listen(mouseTargets, cursor.body, {
-			// separate: separate,
-			enter: onItemOver,
-			// stay: stay,
-			exit: onItemLeave,
-			// condition: condition,
-			// percent_correction: percent_correction,
-			// correction_threshold: correction_threshold
-		});
-	}
-
-	public function onMouseDown(){
-		// var itemUnderMouse = itemsUnderMouse.first((item)-> item.body.id)
-		// if(itemUnderMouse != null){
-		// 	itemUnderMouse.click();
-		// }
-		for(item in itemsUnderMouse){
-			item.click();
-		}
-	}
-
-	// todo check that the Body arguments are always in this order?
-	function onItemOver(cursor:Body, item:Body,  collisions:Array<CollisionData>){
-		trace('mouseover');
-		var piece:IGamePiece = item.data.gamePiece;
-		if(piece != null){
-			if(!itemsUnderMouse.contains(piece)){
-				trace('mouseover remembered');
-				itemsUnderMouse.push(piece);
-			}
-		}
-	}
-
-	// todo check that the Body arguments are always in this order?
-	function onItemLeave(cursor:Body, item:Body){
-		trace('mouseleave');
-		var piece:IGamePiece = item.data.gamePiece;
-		
-		if(piece != null && itemsUnderMouse.length > 0){
-			if(itemsUnderMouse.contains(piece)){
-				itemsUnderMouse.remove(piece);
-				trace('mouseleave discard');
-			}
-		}
-	}
-
-
-	var targets:Array<Body>;
-	var cursor:ShapePiece;
-	var world:World;
-	var itemsUnderMouse:Array<IGamePiece> = [];
-	
 }

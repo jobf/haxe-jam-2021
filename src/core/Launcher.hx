@@ -34,6 +34,7 @@ typedef LauncherStats = {
 	imageKey:ElementKey,
 	shape:ShapeType,
 	bodySize:Vector2,
+	?position:Vector2,
 	?visualSize:Vector2,
 	health:Float,
 	states:Map<LauncherState, Float>,
@@ -41,7 +42,9 @@ typedef LauncherStats = {
 	trajectory:Vector2,
 	movements:Array<Movement>,
 	heightMinMax: Vector2,
-	?color:Color
+	?color:Color,
+	tag:String,
+	projectileStats:ProjectileStats
 };
 
 typedef LauncherConfig = {
@@ -73,12 +76,12 @@ class Launcher extends ShapePiece {
 	public var hp(default, null):Float;
 	var isFlippedX:Bool;
 
-	public function new(pear_:Pear, config:LauncherConfig, opponentTargets_:Array<Body>, position:Vector2, tag_:String, isFlippedX_:Bool) {
+	public function new(pear_:Pear, stats_:LauncherStats, opponentTargets_:Array<Body>, position:Vector2, tag_:String, isFlippedX_:Bool) {
 		pear = pear_;
 		tag = tag_;
 		isFlippedX = isFlippedX_;
-		stats = config.launcher;
-		projectile = config.projectile;
+		stats = stats_;
+		projectile = stats.projectileStats;
 		trajectory = stats.trajectory.clone();
 		if(isFlippedX){
 			trajectory.x *= -1;

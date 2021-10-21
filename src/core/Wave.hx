@@ -2,6 +2,7 @@ package core;
 
 import core.Data.Barracks;
 import core.Launcher.LauncherConfig;
+import core.Launcher.LauncherStats;
 import echo.Body;
 import lime.math.Vector2;
 import ob.pear.Delay;
@@ -12,7 +13,7 @@ import scenes.ScorchedEarth.Direction;
 using ob.pear.Delay.DelayExtensions;
 
 typedef WaveStats = {
-	launchers:Array<LauncherConfig>,
+	launchers:Array<LauncherStats>,
 	maximumActiveLaunchers:Int
 };
 
@@ -100,12 +101,15 @@ class Wave {
 
 		if (activeLaunchers.length < stats.maximumActiveLaunchers && launcherIndex < stats.launchers.length) {
 			var next = stats.launchers[launcherIndex];
-			var heightPercent = Random.range(next.launcher.heightMinMax.x, next.launcher.heightMinMax.y);
-			var widthOffset = 10;
-			if (isFlippedX) {
-				widthOffset *= -1;
+			if(next.position == null){
+				var heightPercent = Random.range(next.heightMinMax.x, next.heightMinMax.y);
+				var widthOffset = 10;
+				next.position = new Vector2(widthOffset, heightPercent * pear.window.height);
 			}
-			var launcherPos = new Vector2(widthOffset, heightPercent * pear.window.height);
+			if (isFlippedX) {
+				next.position.x *= -1;
+			}
+			var launcherPos = next.position;
 			var launcher = new Launcher(pear, next, opponentTargets, launcherPos, tag, isFlippedX);
 			activeLaunchers.push(launcher);
 			targets.push(launcher.body);
@@ -116,3 +120,4 @@ class Wave {
 		}
 	}
 }
+

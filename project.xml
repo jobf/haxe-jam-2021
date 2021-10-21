@@ -10,7 +10,7 @@
 
 	<!-- samples -->
 	<app main="PearShaped" path="bin" file="Main" />
-	<window width="1200" height="680" fps="61" />
+	<window width="960" height="540" fps="61" />
 	<!-- <window fullscreen="true" fps="61" /> -->
 	<window if="html5||android" width="0" height="0" />
 	
@@ -20,6 +20,8 @@
 	
 	<haxelib name="lime" />	
 	<haxelib name="peote-view" />
+	<haxelib name="json2object" />
+	<haxelib name="peote-text" />
 	<haxelib name="echo" />	
 	<haxelib name="hxmath" />
 	<haxelib name="zigcall" />

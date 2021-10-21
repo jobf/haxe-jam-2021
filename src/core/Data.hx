@@ -10,6 +10,7 @@ import utils.Loader;
 class Global {
 	public static var wonLastRound:Int = 0;
 	public static var opponentIndex:Int = 0;
+	public static var currentWaveSetup:WaveStats;
 }
 
 @:enum abstract ElementKey(Int) from Int to Int {
@@ -65,6 +66,7 @@ class Barracks {
 
 	public static var Launchers:Map<ElementKey, LauncherStats> = [
 		KENNEL => {
+			tag: "DOGCATS",
 			imageKey: KENNEL,
 			shape: RECT,
 			heightMinMax: new Vector2(0.9, 0.99),
@@ -72,15 +74,18 @@ class Barracks {
 			visualSize: new Vector2(180, 180),
 			health: 100,
 			trajectory: new Vector2(130, -130),
+			projectileStats: Projectiles.DOG_HURL,
 			states: [Idle => 0.7, Prepare => 0.2, Shoot => 0.1, TakeDamage => 0.2],
 			movements: []
 		},
 		CAVALRY => {
+			tag: "HORSES",
 			imageKey: CAVALRY,
 			shape: RECT,
 			heightMinMax: new Vector2(0.3, 0.6),
 			bodySize: new Vector2(340, 120),
 			visualSize: new Vector2(520, 280),
+			projectileStats: Projectiles.DOG_HURL,
 			health: 50,
 			trajectory: new Vector2(130, -130),
 			states: [Idle => 0.7, Prepare => 0.2, Shoot => 0.1, TakeDamage => 0.2],
@@ -96,6 +101,7 @@ class Barracks {
 			]
 		},
 		launcherBUBBLER => {
+			tag: "hair balls",
 			color: 0xb8a723cc,
 			imageKey: RECT,
 			shape: RECT,
@@ -104,10 +110,12 @@ class Barracks {
 			visualSize: new Vector2(100, 70),
 			health: 100,
 			trajectory: new Vector2(130, -130),
+			projectileStats: Projectiles.BUBBLE,
 			states: [Idle => 24 * 0.016, Prepare => 24 *  0.016, Shoot => 24 * 0.016, TakeDamage => 24 * 0.016],
 			movements: []
 		},
 		launcherKNIGHTHOUSE => {
+			tag: "cannon fodder",
 			color: 0x95b0afcc,
 			imageKey: RECT,
 			shape: RECT,
@@ -116,10 +124,12 @@ class Barracks {
 			visualSize: new Vector2(150, 100),
 			health: 100,
 			trajectory: new Vector2(50, 0),
+			projectileStats: Projectiles.KNIGHT,
 			states: [Idle => 100 * 0.016, Prepare => 24 *  0.016, Shoot => 24 * 0.016, TakeDamage => 24 * 0.016],
 			movements: []
 		},
 		launcherARCHERS => {
+			tag: "robin hoods",
 			color: 0x3b6940cc,
 			imageKey: RECT,
 			shape: RECT,
@@ -128,6 +138,7 @@ class Barracks {
 			visualSize: new Vector2(150, 100),
 			health: 100,
 			trajectory: new Vector2(130, -130),
+			projectileStats: Projectiles.ARROW,
 			states: [Idle => 100 * 0.016, Prepare => 24 *  0.016, Shoot => 24 * 0.016, TakeDamage => 24 * 0.016],
 			movements: [
 				{
@@ -264,27 +275,15 @@ class Rounds {
 			waves: [
 				{
 					launchers: [
-						{
-							launcher: Barracks.Launchers[KENNEL],
-							projectile: Projectiles.DOG_HURL
-						}
+						Barracks.Launchers[KENNEL],
 					],
 					maximumActiveLaunchers: 2,
 				},
 				{
 					launchers: [
-						{
-							launcher: Barracks.Launchers[CAVALRY],
-							projectile: Projectiles.DOG_HURL
-						},
-						{
-							launcher: Barracks.Launchers[CAVALRY],
-							projectile: Projectiles.DOG_HURL
-						},
-						{
-							launcher: Barracks.Launchers[CAVALRY],
-							projectile: Projectiles.DOG_HURL
-						}
+						Barracks.Launchers[CAVALRY],
+						Barracks.Launchers[CAVALRY],
+						Barracks.Launchers[CAVALRY],
 					],
 					maximumActiveLaunchers: 2,
 				},
@@ -296,39 +295,17 @@ class Rounds {
 			waves: [
 				{
 					launchers: [
-						{
-							launcher: Barracks.Launchers[KENNEL],
-							projectile: Projectiles.DOG_HURL
-						},
-						{
-							launcher: Barracks.Launchers[CAVALRY],
-							projectile: Projectiles.DOG_HURL
-						},
-						{
-							launcher: Barracks.Launchers[CAVALRY],
-							projectile: Projectiles.DOG_HURL
-						},
-						{
-							launcher: Barracks.Launchers[CAVALRY],
-							projectile: Projectiles.DOG_HURL
-						}
+						Barracks.Launchers[CAVALRY],
+						Barracks.Launchers[CAVALRY],
+						Barracks.Launchers[CAVALRY]
 					],
 					maximumActiveLaunchers: 2,
 				},
 				{
 					launchers: [
-						{
-							launcher: Barracks.Launchers[CAVALRY],
-							projectile: Projectiles.DOG_HURL
-						},
-						{
-							launcher: Barracks.Launchers[CAVALRY],
-							projectile: Projectiles.DOG_HURL
-						},
-						{
-							launcher: Barracks.Launchers[CAVALRY],
-							projectile: Projectiles.DOG_HURL
-						}
+						Barracks.Launchers[CAVALRY],
+						Barracks.Launchers[CAVALRY],
+						Barracks.Launchers[CAVALRY],
 					],
 					maximumActiveLaunchers: 2,
 				},

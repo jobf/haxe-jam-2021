@@ -8,6 +8,8 @@ The theme for the jam is **overlords**
 ```
 haxelib install lime
 haxelib install peote-view
+haxelib install json2object
+haxelib install peote-text
 haxelib install hxmath
 haxelib install echo
 haxelib install zigcall
