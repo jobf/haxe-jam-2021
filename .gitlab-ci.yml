@@ -11,6 +11,10 @@ build:linux:
     - haxelib install hxmath
     - haxelib install echo
     - haxelib install zigcall
+    - haxelib install json2object
+    # setup peote-text
+    - git clone https://github.com/maitag/peote-text.git
+    - haxelib dev peote-view peote-text
     # setup peote-view
     - git clone https://github.com/maitag/peote-view.git
     - haxelib dev peote-view peote-view
