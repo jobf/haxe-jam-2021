@@ -13,6 +13,8 @@ import ob.pear.GamePiece.ShapePiece;
 import ob.pear.Scene.TestScene;
 import ob.pear.Signals.KeyPressSignal;
 import ob.pear.Signals.MouseButtonSignal;
+import ob.pear.Text.GlyphStyleTiled;
+import peote.text.Font;
 import peote.view.Color;
 
 class Pear {
@@ -20,20 +22,23 @@ class Pear {
 	public var scene(default, null):Scene;
 	public var window(default, null):Window;
 	public var delayFactory(default, null):DelayFactory;
-
+	
 	var mousePos:Vector2;
 	var mouseWheelDelta:Vector2;
 
 	public var input(default, null):Signals;
+	public var font(default, null):Font<GlyphStyleTiled>;
 
-	public function new(window:Window, backgroundColor:Color = Color.GREY1) {
+	public function new(window:Window, font_:Font<GlyphStyleTiled>, backgroundColor:Color = Color.GREY1) {
 		this.window = window;
+		font = font_;
 		input = new Signals();
 		this.scene = new TestScene(this);
 		onUpdate = defaultOnUpdate;
 		mousePos = new Vector2();
 		mouseWheelDelta = new Vector2();
 		delayFactory = new DelayFactory();
+		
 	}
 
 	public function followMouse(piece:IGamePiece, followLogic:(IGamePiece, Vector2) -> Void = null):Vector2 -> Void {
@@ -114,4 +119,5 @@ class Pear {
 	public function setupCollision(a:IGamePiece, b:IGamePiece, options:ListenerOptions) {
 		scene.phys.setupCollision(a.body, b.body, options);
 	}
+
 }

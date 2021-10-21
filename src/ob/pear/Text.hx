@@ -6,18 +6,8 @@ import peote.view.Color;
 import peote.view.Display;
 
 class Text {
-	public function new(display_:Display) {
-		display = display_;
-		// todo - preload this
-		font = new Font<GlyphStyleTiled>('assets/fonts/peote.json');
-		font.load((font) -> {
-			var glyphStyle = new GlyphStyleTiled();
-			glyphStyle.width = font.config.width;
-			glyphStyle.height = font.config.height;
-			fontProgram = new FontProgram<GlyphStyleTiled>(font, glyphStyle);
-
-			display.addProgram(fontProgram);
-		});
+	public function new(fontProgram:FontProgram<GlyphStyleTiled>) {
+		this.fontProgram = fontProgram;
 	}
 
 	var font:Font<GlyphStyleTiled>;
