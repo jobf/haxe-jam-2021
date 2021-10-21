@@ -82,7 +82,6 @@ class ScorchedEarth extends BaseScene {
 						}
 					],
 					maximumActiveLaunchers: 2,
-					waveCenter: new Vector2(190, 330)
 				},
 				{
 					launchers: [
@@ -100,7 +99,6 @@ class ScorchedEarth extends BaseScene {
 						}
 					],
 					maximumActiveLaunchers: 2,
-					waveCenter: new Vector2(190, 330)
 				},
 			]
 		}

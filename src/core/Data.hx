@@ -1,7 +1,7 @@
 package core;
 
 import core.Launcher.LauncherStats;
-import core.Launcher.ProjectileStats;
+import core.Projectile.ProjectileStats;
 import core.Wave.WaveStats;
 import lime.graphics.Image;
 import lime.math.Vector2;
@@ -53,6 +53,10 @@ class Preload {
 }
 
 class Barracks {
+	public static var HEIGHTS:Map<ElementKey, Vector2> =[
+		KENNEL => new Vector2(0.9, 0.99), // minmax percent of y
+		CAVALRY => new Vector2(0.3, 0.6)
+	];
 	public static var Launchers:Map<ElementKey, LauncherStats> = [
 		KENNEL => {
 			imageKey: KENNEL,
@@ -62,8 +66,6 @@ class Barracks {
 			health: 100,
 			trajectory: new Vector2(130, -130),
 			states: [Idle => 0.7, Prepare => 0.2, Shoot => 0.1, TakeDamage => 0.2],
-			distanceFromWaveMin: new Vector2(10, 10),
-			distanceFromWaveMax: new Vector2(300, 300),
 			movements: []
 		},
 		CAVALRY => {
@@ -74,8 +76,6 @@ class Barracks {
 			health: 50,
 			trajectory: new Vector2(130, -130),
 			states: [Idle => 0.7, Prepare => 0.2, Shoot => 0.1, TakeDamage => 0.2],
-			distanceFromWaveMin: new Vector2(10, 10),
-			distanceFromWaveMax: new Vector2(300, 300),
 			movements: [
 				{
 					velocity: new Vector2(15, 0),
@@ -94,11 +94,37 @@ class Barracks {
 			color: 0xffffffdd,
 			imageKey: DOG,
 			shape: CIRCLE,
-			bodySize: new Vector2(16, 16),
 			visualSize: new Vector2(90, 90),
-			damagePower: 20
+			damagePower: 20,
+			bodyOptions: {
+				shape: {
+					type: RECT,
+					width: 16,
+					height: 16,
+					radius: 8,
+					solid: true
+				},
+				elasticity: 0.9,
+				rotational_velocity: 8, // Math.abs(Random.range(300, 360)),
+				max_rotational_velocity: 10,
+			},
+			tag: "Hurl't dogg",
+			behaviours:[],
 		}
 	];
+}
+
+class ProjectBehaviors{
+	public static var stopAt400:Projectile->Bool = projectile -> {
+			if(projectile.body.y >= 400){
+				projectile.body.acceleration.y = 0;
+				projectile.body.velocity.y = 0;
+				projectile.body.rotational_velocity= 0;
+				projectile.body.rotation = 0;
+				projectile.body.max_velocity.y = 0;
+			}
+			return false;
+		}
 }
 
 typedef OpponentConfig = {
@@ -121,7 +147,6 @@ class Rounds {
 						}
 					],
 					maximumActiveLaunchers: 2,
-					waveCenter: new Vector2(1000, 330)
 				},
 				{
 					launchers: [
@@ -139,7 +164,6 @@ class Rounds {
 						}
 					],
 					maximumActiveLaunchers: 2,
-					waveCenter: new Vector2(1000, 330)
 				},
 			]
 		},
@@ -167,7 +191,6 @@ class Rounds {
 						}
 					],
 					maximumActiveLaunchers: 2,
-					waveCenter: new Vector2(1000, 330)
 				},
 				{
 					launchers: [
@@ -185,7 +208,6 @@ class Rounds {
 						}
 					],
 					maximumActiveLaunchers: 2,
-					waveCenter: new Vector2(1000, 330)
 				},
 			]
 		}
