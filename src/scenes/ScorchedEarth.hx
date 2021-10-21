@@ -3,6 +3,7 @@ package scenes;
 import core.Data.Barracks;
 import core.Data.ElementKey;
 import core.Data.Global;
+import core.Data.Projectiles;
 import core.Data.Rounds;
 import core.Player;
 import echo.Body;
@@ -78,7 +79,7 @@ class ScorchedEarth extends BaseScene {
 					launchers: [
 						{
 							launcher: Barracks.Launchers[KENNEL],
-							projectile: Barracks.Projectiles[DOG]
+							projectile: Projectiles.DOG_HURL
 						}
 					],
 					maximumActiveLaunchers: 2,
@@ -87,15 +88,15 @@ class ScorchedEarth extends BaseScene {
 					launchers: [
 						{
 							launcher: Barracks.Launchers[CAVALRY],
-							projectile: Barracks.Projectiles[DOG]
+							projectile: Projectiles.DOG_HURL
 						},
 						{
 							launcher: Barracks.Launchers[CAVALRY],
-							projectile: Barracks.Projectiles[DOG]
+							projectile: Projectiles.DOG_HURL
 						},
 						{
 							launcher: Barracks.Launchers[CAVALRY],
-							projectile: Barracks.Projectiles[DOG]
+							projectile: Projectiles.DOG_HURL
 						}
 					],
 					maximumActiveLaunchers: 2,

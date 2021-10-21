@@ -38,7 +38,9 @@ typedef LauncherStats = {
 	states:Map<LauncherState, Float>,
 	?maxProjectiles:Int,
 	trajectory:Vector2,
-	movements:Array<Movement>
+	movements:Array<Movement>,
+	heightMinMax: Vector2,
+	?color:Color
 };
 
 typedef LauncherConfig = {
@@ -138,8 +140,8 @@ class Launcher {
 		position.y -= stats.bodySize.y * 0.5; // nudge towards top of screen by 50% of size
 
 		// too more opponent entities and collide them
-
-		entity = pear.initShape(stats.imageKey, Color.CYAN, {
+		var color = stats.color == null ? Color.CYAN : stats.color;
+		entity = pear.initShape(stats.imageKey, color, {
 			x: position.x,
 			y: position.y,
 			elasticity: 0.0,
