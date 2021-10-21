@@ -2,6 +2,7 @@ package scenes;
 
 import core.Data.Barracks;
 import core.Data.ElementKey;
+import core.Data.Projectiles;
 import core.Wave;
 import echo.data.Options.ListenerOptions;
 import lime.graphics.Image;
@@ -29,6 +30,10 @@ class ArtTestScene extends BaseScene{
 		ShapeElement.init(vis.display, RECT, KENNEL, images[KENNEL]);
 		ShapeElement.init(vis.display, CIRCLE, DOG, images[DOG]);
 		ShapeElement.init(vis.display, RECT, CAVALRY, images[CAVALRY]);
+		ShapeElement.init(vis.display, RECT, launcherARCHERS, images[launcherARCHERS]);
+		ShapeElement.init(vis.display, RECT, launcherBUBBLER, images[launcherBUBBLER]);
+		ShapeElement.init(vis.display, RECT, launcherKNIGHTHOUSE, images[launcherKNIGHTHOUSE]);
+		ShapeElement.init(vis.display, RECT, projectileKNIGHT, images[projectileKNIGHT]);
         
 		pear.input.onKeyDown.connect((sig)->{
 			// restart scene 
@@ -61,13 +66,21 @@ class ArtTestScene extends BaseScene{
 
         var stats:WaveStats = {
             launchers: [
+				// {
+				// 	launcher: Barracks.Launchers[KENNEL],
+				// 	projectile: Projectiles.DOG_HURL
+				// },
 				{
-					launcher: Barracks.Launchers[KENNEL],
-					projectile: Barracks.Projectiles[DOG]
+					launcher: Barracks.Launchers[launcherKNIGHTHOUSE],
+					projectile: Projectiles.KNIGHT
 				},
 				{
-					launcher: Barracks.Launchers[CAVALRY],
-					projectile: Barracks.Projectiles[DOG]
+					launcher: Barracks.Launchers[launcherBUBBLER],
+					projectile: Projectiles.BUBBLE
+				},
+				{
+					launcher: Barracks.Launchers[launcherARCHERS],
+					projectile: Projectiles.ARROW
 				}
 			],
             maximumActiveLaunchers: 999

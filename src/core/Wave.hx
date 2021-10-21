@@ -100,8 +100,7 @@ class Wave {
 
 		if (activeLaunchers.length < stats.maximumActiveLaunchers && launcherIndex < stats.launchers.length) {
 			var next = stats.launchers[launcherIndex];
-			var heightMinMax = Barracks.HEIGHTS[next.launcher.imageKey];
-			var heightPercent = Random.range(heightMinMax.x, heightMinMax.y);
+			var heightPercent = Random.range(next.launcher.heightMinMax.x, next.launcher.heightMinMax.y);
 			var widthOffset = 10;
 			if (isFlippedX) {
 				widthOffset *= -1;
