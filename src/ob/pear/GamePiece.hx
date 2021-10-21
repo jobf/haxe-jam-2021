@@ -12,6 +12,7 @@ interface IGamePiece {
 	public function update(deltaTime:Float):Void;
 	public function remove():Void;
 	public function setColor(color:Color):Void;
+	public function click():Void;
 }
 
 class ShapePiece implements IGamePiece {
@@ -67,6 +68,10 @@ class ShapePiece implements IGamePiece {
 	public function updateElement() {
 		buffer.updateElement(cloth);
 	}
+
+	public function click(){
+		trace('clicked ${body.data}');
+	}
 }
 
 class MultiShapePiece implements IGamePiece {
@@ -119,4 +124,7 @@ class MultiShapePiece implements IGamePiece {
 		cloth.color = color_;
 		buffer.updateElement(cloth);
 	}
+
+	public function click(){}
+
 }
