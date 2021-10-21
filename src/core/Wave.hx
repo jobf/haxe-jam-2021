@@ -63,7 +63,7 @@ class Wave {
 
 	public function selectLauncher(id:Int) {
 		trace('look for launcher with id $id');
-		if (selected != null && selected.entity.body.id == id) {
+		if (selected != null && selected.body.id == id) {
 			// trying to select the already selected launcher
 			// so it must be not selected now
 			selected.toggleSelected();
@@ -71,7 +71,7 @@ class Wave {
 		} else {
 			// otherwise make a selection
 			for (l in activeLaunchers) {
-				if (l.entity.body.id == id) {
+				if (l.body.id == id) {
 					selected = l;
 				}
 			}
@@ -108,10 +108,10 @@ class Wave {
 			var launcherPos = new Vector2(widthOffset, heightPercent * pear.window.height);
 			var launcher = new Launcher(pear, next, opponentTargets, launcherPos, tag, isFlippedX);
 			activeLaunchers.push(launcher);
-			targets.push(launcher.entity.body);
+			targets.push(launcher.body);
 			launcherIndex++;
 			#if debug
-			trace('launcher entered  ${launcher.entity.body.x}, ${launcher.entity.body.y}\n${next.launcher}');
+			trace('launcher entered  ${launcher.body.x}, ${launcher.body.y}\n${next.launcher}');
 			#end
 		}
 	}

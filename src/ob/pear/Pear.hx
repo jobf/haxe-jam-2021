@@ -36,14 +36,18 @@ class Pear {
 		delayFactory = new DelayFactory();
 	}
 
-	public function followMouse(piece:IGamePiece, followLogic:(IGamePiece, Vector2) -> Void = null) {
+	public function followMouse(piece:IGamePiece, followLogic:(IGamePiece, Vector2) -> Void = null):Vector2 -> Void {
 		var followLogic = followLogic != null ? followLogic : (piece, pos) -> {
 			piece.body.set_position(pos.x, pos.y);
 		};
 
-		input.onMouseMove.connect((pos) -> {
+		var connection:Vector2 -> Void = (pos) -> {
 			followLogic(piece, pos);
-		});
+		};
+
+		input.onMouseMove.connect(connection);
+
+		return connection;
 	}
 
 	public function changeScene(nextScene:Scene, autoInit:Bool = true) {
