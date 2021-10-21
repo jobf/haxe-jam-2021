@@ -75,32 +75,20 @@ class ScorchedEarth extends BaseScene {
 			name: "oh lord!",
 			imageKey: LORD,
 			waves: [
-				{
+				Global.currentWaveSetup != null ? Global.currentWaveSetup : {
 					launchers: [
-						{
-							launcher: Barracks.Launchers[KENNEL],
-							projectile: Projectiles.DOG_HURL
-						}
+						Barracks.Launchers[KENNEL],
 					],
 					maximumActiveLaunchers: 2,
 				},
 				{
 					launchers: [
-						{
-							launcher: Barracks.Launchers[CAVALRY],
-							projectile: Projectiles.DOG_HURL
-						},
-						{
-							launcher: Barracks.Launchers[CAVALRY],
-							projectile: Projectiles.DOG_HURL
-						},
-						{
-							launcher: Barracks.Launchers[CAVALRY],
-							projectile: Projectiles.DOG_HURL
-						}
+						Barracks.Launchers[CAVALRY],
+						Barracks.Launchers[CAVALRY],
+						Barracks.Launchers[CAVALRY],
 					],
 					maximumActiveLaunchers: 2,
-				},
+				}
 			]
 		}
 		playerA = new Player(pear, playerPosA, false, playerAConfig);

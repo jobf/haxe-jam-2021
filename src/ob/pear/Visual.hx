@@ -3,6 +3,7 @@ package ob.pear;
 import echo.data.Types.ShapeType;
 import lime.ui.Window;
 import ob.pear.Sprites.ShapeElement;
+import ob.pear.Text;
 import peote.view.Buffer;
 import peote.view.Color;
 import peote.view.Display;
@@ -20,6 +21,7 @@ class Visual {
 	var mainDisplay:Display;
 	var window:Window;
 	var backgroundColor:Color;
+	public var text(default, null):Text;
 
 	public function new(window:Window, backgroundColor:Color = Color.GREY1) {
 		this.window = window;
@@ -92,6 +94,8 @@ class Visual {
 
 		peoteView.addFramebufferDisplay(display);
 		peoteView.start();
+
+		text = new Text(display);
 	}
 
 	public function halt() {
