@@ -1,7 +1,9 @@
 package core;
 
+import core.Data.Barracks;
 import core.Launcher.LauncherConfig;
 import echo.Body;
+import lime.math.Vector2;
 import ob.pear.Delay;
 import ob.pear.Pear;
 import ob.pear.Random;
@@ -11,8 +13,7 @@ using ob.pear.Delay.DelayExtensions;
 
 typedef WaveStats = {
 	launchers:Array<LauncherConfig>,
-	maximumActiveLaunchers:Int,
-	waveCenter:lime.math.Vector2
+	maximumActiveLaunchers:Int
 };
 
 class Wave {
@@ -99,11 +100,13 @@ class Wave {
 
 		if (activeLaunchers.length < stats.maximumActiveLaunchers && launcherIndex < stats.launchers.length) {
 			var next = stats.launchers[launcherIndex];
-			var positionOffset = Random.range_vector2(next.launcher.distanceFromWaveMin, next.launcher.distanceFromWaveMax);
+			var heightMinMax = Barracks.HEIGHTS[next.launcher.imageKey];
+			var heightPercent = Random.range(heightMinMax.x, heightMinMax.y);
+			var widthOffset = 10;
 			if (isFlippedX) {
-				positionOffset.x *= -1;
+				widthOffset *= -1;
 			}
-			var launcherPos = stats.waveCenter.add(positionOffset);
+			var launcherPos = new Vector2(widthOffset, heightPercent * pear.window.height);
 			var launcher = new Launcher(pear, next, opponentTargets, launcherPos, tag, isFlippedX);
 			activeLaunchers.push(launcher);
 			targets.push(launcher.entity.body);

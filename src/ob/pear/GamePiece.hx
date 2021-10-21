@@ -22,9 +22,9 @@ class ShapePiece implements IGamePiece {
 	var color:Color;
 	var isXFlipped:Bool;
 
-	public function new(elementKey:Int, color:Color, visibleWidth:Float, visibleHeight:Float, buffer:Buffer<ShapeElement>, body:Body, numShapeSides:Int = 3,
+	public function new(elementKey:Int, color:Color, visibleWidth:Float, visibleHeight:Float, ?buffer:Buffer<ShapeElement>, body:Body, numShapeSides:Int = 3,
 			isFlippedX:Bool = false) {
-		this.buffer = buffer;
+		this.buffer = buffer == null ? ShapeElement.buffers[elementKey] : buffer;
 		isXFlipped = isFlippedX;
 		// if (isXFlipped) {
 		// 	visibleWidth = visibleWidth * -1;

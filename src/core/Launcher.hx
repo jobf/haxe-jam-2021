@@ -1,6 +1,7 @@
 package core;
 
 import core.Data.ElementKey;
+import core.Projectile.ProjectileStats;
 import echo.Body;
 import echo.Listener;
 import echo.data.Types.ShapeType;
@@ -22,14 +23,6 @@ enum LauncherState {
 	Expired;
 }
 
-typedef ProjectileStats = {
-	color:Int,
-	imageKey:ElementKey,
-	shape:ShapeType,
-	bodySize:Vector2,
-	?visualSize:Vector2,
-	damagePower:Float
-};
 
 typedef Movement = {
 	velocity:Vector2,
@@ -45,8 +38,6 @@ typedef LauncherStats = {
 	states:Map<LauncherState, Float>,
 	?maxProjectiles:Int,
 	trajectory:Vector2,
-	distanceFromWaveMax:Vector2,
-	distanceFromWaveMin:Vector2,
 	movements:Array<Movement>
 };
 
@@ -63,7 +54,7 @@ class Launcher {
 	var projectile:ProjectileStats;
 	var trajectory:Vector2;
 
-	public var projectiles(default, null):Array<ShapePiece> = [];
+	public var projectiles(default, null):Array<Projectile> = [];
 	public var entity:ShapePiece;
 
 	var projectileBodies:Array<Body> = [];
@@ -99,7 +90,7 @@ class Launcher {
 		if (stats.visualSize == null)
 			stats.visualSize = stats.bodySize;
 		if (projectile.visualSize == null)
-			projectile.visualSize = projectile.bodySize;
+			projectile.visualSize = new Vector2(projectile.bodyOptions.shape.width, projectile.bodyOptions.shape.height);
 		if (stats.maxProjectiles == null)
 			stats.maxProjectiles = 999999;
 
@@ -180,27 +171,11 @@ class Launcher {
 		#end
 	}
 
-	public function initProjectile():ShapePiece {
-		var piece = pear.initShape(projectile.imageKey, projectile.color, {
-			x: entity.body.x,
-			y: entity.body.y,
-			elasticity: 0.3,
-			rotational_velocity: 8, // Math.abs(Random.range(300, 360)),
-			max_rotational_velocity: 10,
-			shape: {
-				type: projectile.shape,
-				radius: projectile.bodySize.y * 0.5,
-				width: projectile.bodySize.x,
-				height: projectile.bodySize.y,
-				solid: false,
-			}
-		}, {vWidth: projectile.visualSize.x, vHeight: projectile.visualSize.y},
-			isFlippedX);
-
+	public function initProjectile():Projectile {
+		var behaviourCheckFrequency = 0.064; // 4 frames?
+		var behaviour = pear.delayFactory.Default(behaviourCheckFrequency, true, true);
+		var piece = new Projectile(pear.scene.phys, entity.body.x, entity.body.y, projectile, behaviour, isFlippedX);
 		projectiles.push(piece);
-		piece.body.data.projectileData = projectile;
-		piece.body.data.tag = tag;
-		piece.cloth.z = -15;
 		projectileBodies.push(piece.body);
 		return piece;
 	}
@@ -304,6 +279,11 @@ class Launcher {
 		recoverFromHit.wait(dt, onRecoverFromHit);
 
 		for (p in projectiles) {
+			
+			 // !!! todo
+			p.update(dt);
+
+
 			if (pear.scene.phys.isOutOfBounds(p.body)) {
 				// // stop
 				// p.body.velocity.set(0, 0);
