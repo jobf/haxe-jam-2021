@@ -78,10 +78,6 @@ class Pear {
 		onUpdate(deltaMs, this);
 	}
 
-	public function render() {
-		scene.vis.render();
-	}
-
 	public function onKeyDown(keyCode:KeyCode, modifier:KeyModifier):Void {
 		input.onKeyDown.emit(new KeyPressSignal(keyCode, modifier, true));
 	}

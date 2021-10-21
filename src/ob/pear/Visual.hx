@@ -18,7 +18,6 @@ class Visual {
 
 	var frameBufferTexture:Texture;
 	var mainDisplay:Display;
-	var isRendering:Bool;
 	var window:Window;
 	var backgroundColor:Color;
 
@@ -28,7 +27,7 @@ class Visual {
 	}
 
 	public function toggleRender() {
-		isRendering = !isRendering;
+		display.renderFramebufferEnabled = !display.renderFramebufferEnabled;
 	}
 
 	public function start(enableRender:Bool = true) {
@@ -91,18 +90,12 @@ class Visual {
 		ShapeElement.init(display, CIRCLE, CIRCLE);
 		ShapeElement.init(display, POLYGON, POLYGON);
 
-		isRendering = enableRender;
+		peoteView.addFramebufferDisplay(display);
 		peoteView.start();
 	}
 
 	public function halt() {
 		peoteView.stop();
-	}
-
-	public function render() {
-		if (isRendering) {
-			peoteView.renderToTexture(display, 0);
-		}
 	}
 }
 

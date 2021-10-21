@@ -50,9 +50,10 @@ class PearShaped extends Application {
 		if (readyToUpdate) pear.update(deltaTime);
 	}
 
-	override function render(context:RenderContext) {
-		pear.render();
-	}
+	// no longer needed thanks to  RenderList for updating the Framebuffer Textures
+	// override function render(context:RenderContext) {
+	// 	pear.render();
+	// }
 
 	/* ~~~~~~~~~~~~~~~~~ Keyboard Events ~~~~~~~~~~~~~~~~~ */
 	override function onKeyDown(keyCode:KeyCode, modifier:KeyModifier):Void {
