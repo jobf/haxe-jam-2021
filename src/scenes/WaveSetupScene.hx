@@ -126,22 +126,14 @@ class LauncherButton extends ShapePiece {
 
 	var mouseFollow:Vector2->Void;
 
-	public var onFollowStart:LauncherButton->Void;
-	public var onFollowStop:LauncherButton->Void;
-
 	override function click() {
 		super.click();
 		if (mouseFollow == null) {
 			mouseFollow = pear.followMouse(this);
-			if (onFollowStart != null) {
-				onFollowStart(this);
-			}
+			
 		} else {
 			pear.input.onMouseMove.disconnect(mouseFollow);
 			mouseFollow = null;
-			if (onFollowStop != null) {
-				onFollowStop(this);
-			}
 		}
 	}
 }
@@ -197,20 +189,10 @@ class WaveSetup {
 				trace('added button for ${l.tag}');
 				button.body.data.gamePiece = button;
 				buttons.push(button.body);
-				button.onFollowStart = onFollowStart;
-				button.onFollowStop = onFollowStop;
 				group.push(button);
 				i++;
 			}
 		}
-	}
-
-	function onFollowStart(button:LauncherButton) {
-		trace('picked up ${button}');
-	}
-
-	function onFollowStop(button:LauncherButton) {
-		trace('dropped  ${button}');
 	}
 
 	public var readyButton(default, null):TextButton;

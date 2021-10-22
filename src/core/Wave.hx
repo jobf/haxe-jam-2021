@@ -114,9 +114,6 @@ class Wave {
 			activeLaunchers.push(launcher);
 			targets.push(launcher.body);
 			launcherIndex++;
-			#if debug
-			trace('launcher entered  ${launcher.body.x}, ${launcher.body.y}\n${next.launcher}');
-			#end
 		}
 	}
 }

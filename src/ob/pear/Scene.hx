@@ -3,6 +3,8 @@ package ob.pear;
 import echo.data.Options.WorldOptions;
 import ob.pear.Delay.Tween;
 import ob.pear.GamePiece.ShapePiece;
+import ob.pear.Text.GlyphStyleTiled;
+import peote.text.Font;
 import peote.view.Color;
 
 using ob.pear.Delay.TweenExtensions;
@@ -14,10 +16,11 @@ class Scene {
 
 	var pear:Pear;
 	var canUpdate:Bool;
+	var font:Font<GlyphStyleTiled>;
 
 	public function new(pear:Pear, options:WorldOptions = null, backgroundColor:Color = Color.GREY1) {
 		this.pear = pear;
-		vis = new Visual(pear.window, backgroundColor);
+		vis = new Visual(pear.window,  pear.font, backgroundColor);
 		phys = new Physical(vis, options);
 		tweens = [];
 		canUpdate = false;

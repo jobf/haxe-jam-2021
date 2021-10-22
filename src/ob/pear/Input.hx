@@ -35,11 +35,11 @@ class ClickHandler{
 
 	// todo check that the Body arguments are always in this order?
 	function onItemOver(cursor:Body, item:Body,  collisions:Array<CollisionData>){
-		trace('mouseover');
+		// trace('mouseover');
 		var piece:IGamePiece = item.data.gamePiece;
 		if(piece != null){
 			if(!itemsUnderMouse.contains(piece)){
-				trace('mouseover remembered');
+				// trace('mouseover remembered');
 				itemsUnderMouse.push(piece);
 			}
 		}
@@ -47,13 +47,13 @@ class ClickHandler{
 
 	// todo check that the Body arguments are always in this order?
 	function onItemLeave(cursor:Body, item:Body){
-		trace('mouseleave');
+		// trace('mouseleave');
 		var piece:IGamePiece = item.data.gamePiece;
 		
 		if(piece != null && itemsUnderMouse.length > 0){
 			if(itemsUnderMouse.contains(piece)){
 				itemsUnderMouse.remove(piece);
-				trace('mouseleave discard');
+				// trace('mouseleave discard');
 			}
 		}
 	}

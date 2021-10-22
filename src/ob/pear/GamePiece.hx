@@ -71,7 +71,7 @@ class ShapePiece implements IGamePiece {
 	}
 
 	public function click(){
-		trace('clicked ${body.data}');
+		// trace('clicked ${body.data}');
 	}
 }
 
@@ -126,6 +126,8 @@ class MultiShapePiece implements IGamePiece {
 		buffer.updateElement(cloth);
 	}
 
-	public function click(){}
+	public function click(){
+		return;
+	}
 
 }

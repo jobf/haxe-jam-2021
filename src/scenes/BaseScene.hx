@@ -6,6 +6,8 @@ import lime.graphics.Image;
 import ob.pear.GamePiece.ShapePiece;
 import ob.pear.Pear;
 import ob.pear.Scene;
+import ob.pear.Text.GlyphStyleTiled;
+import peote.text.Font;
 import peote.view.Color;
 
 class BaseScene extends Scene {
@@ -25,7 +27,9 @@ class BaseScene extends Scene {
 	}
 
 	override function init() {
+
 		super.init();
+
 		var cursorSize = pear.window.height * 0.07;
 		cursor = phys.initShape(ElementKey.CIRCLE, 0x44ff44aa, {
 			x: pear.window.width * 0.5,
@@ -46,4 +50,5 @@ class BaseScene extends Scene {
 
 		pear.followMouse(cursor);
 	}
+
 }
