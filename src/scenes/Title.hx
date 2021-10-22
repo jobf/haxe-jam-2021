@@ -1,6 +1,6 @@
 package scenes;
 
-import core.Data.ElementKey;
+import data.Global.ElementKey;
 import ob.pear.Pear;
 import ob.pear.Sprites.ShapeElement;
 import peote.view.Color;
@@ -27,7 +27,7 @@ class Title extends BaseScene {
 				height: pear.window.height,
 				solid: false,
 			}
-		});
+		}, false);
 
 		pear.input.onMouseDown.connect((sig) -> {
 			pear.changeScene(new ScorchedEarth(pear, images));

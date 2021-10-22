@@ -1,9 +1,9 @@
 package core;
 
-import core.Data.ElementKey;
-import core.Data.OpponentConfig;
 import core.Launcher.TargetGroup;
 import core.Wave.WaveStats;
+import data.Global.ElementKey;
+import data.Rounds.OpponentConfig;
 import echo.Body;
 import lime.math.Vector2;
 import ob.pear.GamePiece.ShapePiece;
@@ -14,7 +14,7 @@ import scenes.ScorchedEarth.Direction;
 using ob.pear.Delay.DelayExtensions;
 
 class Player {
-	public var lord(default, null):ShapePiece;
+	// public var lord(default, null):ShapePiece;
 
 	var isFlippedX:Bool;
 	var playerId:Int;
@@ -33,21 +33,21 @@ class Player {
 		config = config_;
 		isFlippedX = flipX;
 		tag = config.name;
-		lord = pear.initShape(ElementKey.LORD, Color.CYAN, {
-			x: position.x + 100,
-			y: position.y,
-			elasticity: 0.0,
-			rotational_velocity: 0.0,
-			kinematic: true,
-			shape: {
-				type: RECT,
-				// radius: size * 0.5,
-				width: 270,
-				height: 666,
-				solid: false,
-			}
-		}, isFlippedX);
-		lord.cloth.z = -30;
+		// lord = pear.initShape(ElementKey.LORD, Color.CYAN, {
+		// 	x: position.x + 100,
+		// 	y: position.y,
+		// 	elasticity: 0.0,
+		// 	rotational_velocity: 0.0,
+		// 	kinematic: true,
+		// 	shape: {
+		// 		type: RECT,
+		// 		// radius: size * 0.5,
+		// 		width: 270,
+		// 		height: 666,
+		// 		solid: false,
+		// 	}
+		// }, isFlippedX);
+		// lord.cloth.z = -30;
 	}
 
 	public function startWave(targets:TargetGroup, opponentTargets:TargetGroup) {

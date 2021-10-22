@@ -24,8 +24,8 @@ class OverlordPiece extends ShapePiece{
     var vitals:Vitals;
     public var isExpired:Bool;
     public var isRemoveNextUpdate:Bool;
-    public function new(elementKey:Int, vitals_:Vitals, color:Color, visibleWidth:Float, visibleHeight:Float, ?buffer:Buffer<ShapeElement>, body:Body, isFlippedX:Bool = false) {
-        super(elementKey, color, visibleWidth, visibleHeight, null, body);
+    public function new(elementKey:Int, vitals_:Vitals, color:Color, visibleWidth:Float, visibleHeight:Float, ?buffer:Buffer<ShapeElement>, body:Body, isFlippedX:Bool) {
+        super(elementKey, color, visibleWidth, visibleHeight, null, body, isFlippedX);
         vitals = vitals_;
         body.data.vitals = vitals_;
         isExpired = false;

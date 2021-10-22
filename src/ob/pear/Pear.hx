@@ -112,7 +112,7 @@ class Pear {
 	}
 
 	public function initShape(elementKey:Int, colour:Color, options:BodyOptions, visualSize:{vWidth:Float, vHeight:Float} = null,
-			isFlippedX:Bool = false):ShapePiece {
+			isFlippedX:Bool):ShapePiece {
 		return scene.phys.initShape(elementKey, colour, options, visualSize, isFlippedX);
 	}
 

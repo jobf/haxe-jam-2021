@@ -82,7 +82,7 @@ class Physical {
 	}
 
 	public function initShape(elementKey:Int, colour:Color, phys:BodyOptions, visualSize:{vWidth:Float, vHeight:Float} = null,
-			isFlippedX:Bool = false):ShapePiece {
+			isFlippedX:Bool):ShapePiece {
 		visualSize = visualSize != null ? visualSize : {vWidth: phys.shape.width, vHeight: phys.shape.height};
 		var piece = new ShapePiece(elementKey, colour, visualSize.vWidth, visualSize.vHeight, ShapeElement.buffers[elementKey], world.make(phys),
 			phys.shape.sides, isFlippedX);

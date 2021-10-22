@@ -1,6 +1,6 @@
 package;
 
-import core.Data.Preload;
+import data.Global.Preload;
 import haxe.CallStack;
 import lime.app.Application;
 import lime.graphics.RenderContext;

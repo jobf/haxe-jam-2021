@@ -1,9 +1,9 @@
 package core;
 
-import core.Data.Barracks;
 import core.Launcher.LauncherConfig;
 import core.Launcher.LauncherStats;
 import core.Launcher.TargetGroup;
+import data.Barracks;
 import echo.Body;
 import lime.math.Vector2;
 import ob.pear.Delay;
@@ -107,7 +107,7 @@ class Wave {
 			return;
 		};
 
-		if (activeLaunchers.length < stats.maximumActiveLaunchers && launcherIndex < stats.launchers.length) {
+		if (activeLaunchers.length < stats.maximumActiveLaunchers && launcherIndex < stats.launchers.length - 1) {
 			var next = stats.launchers[launcherIndex];
 			var launcherPos:Vector2;
 			if(next.position == null){

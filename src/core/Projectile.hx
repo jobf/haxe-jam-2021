@@ -1,7 +1,8 @@
 package core;
 
-import core.Data.ElementKey;
 import core.Pieces;
+import data.Global.ElementKey;
+import data.Global;
 import echo.data.Options.BodyOptions;
 import echo.data.Types.ShapeType;
 import lime.math.Vector2;
@@ -24,9 +25,8 @@ typedef ProjectileStats = {
 };
 
 
-
 class Projectile extends OverlordPiece {
-	public function new(vitals:Vitals, phys:Physical, x:Float, y:Float, stats:ProjectileStats, behaviour_:Delay, isFlippedX:Bool = false) {
+	public function new(vitals:Vitals, phys:Physical, x:Float, y:Float, stats:ProjectileStats, behaviour_:Delay, isFlippedX:Bool) {
 		this.stats = stats;
 		var body = phys.world.make(stats.bodyOptions);
 		body.x = x;
@@ -34,14 +34,17 @@ class Projectile extends OverlordPiece {
 		body.data.projectileData = stats;
 		body.data.gamePiece = this;
 		behaviour = behaviour_;
-		super(stats.imageKey, vitals, stats.color, stats.visualSize.x, stats.visualSize.y, body, isFlippedX);
+		behaviourIndex = 0;
+		super(stats.imageKey, vitals, Global.colors[vitals.player], stats.visualSize.x, stats.visualSize.y, body, isFlippedX);
 	}
 
 	public function resetVelocity(){
 		body.velocity.set(0,0);
 	}
 
-
+	public function changeBehaviorTime(durationMs){
+		behaviour.duration = durationMs;
+	}
 
 	override function update(deltaMs:Float) {
 		if(isExpired) return;
@@ -50,7 +53,7 @@ class Projectile extends OverlordPiece {
 	}
 
 	function nextBehaviour() {
-		// if behaviour is finished
+		// if behaviour is finished we do the next one
 		if(stats.behaviours.length < 1){
 			return;
 		}

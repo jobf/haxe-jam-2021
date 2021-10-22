@@ -1,12 +1,12 @@
 package scenes;
 
-import core.Data.Barracks;
-import core.Data.ElementKey;
-import core.Data.Global;
-import core.Data.Projectiles;
-import core.Data.Rounds;
 import core.Launcher.TargetGroup;
 import core.Player;
+import data.Barracks;
+import data.Global.ElementKey;
+import data.Global;
+import data.Projectiles;
+import data.Rounds;
 import echo.Body;
 import echo.Echo;
 import echo.data.Options.ListenerOptions;
@@ -48,10 +48,16 @@ class ScorchedEarth extends BaseScene {
 
 	override function init() {
 		super.init();
-		ShapeElement.init(vis.display, RECT, LORD, images[LORD]);
-		ShapeElement.init(vis.display, RECT, KENNEL, images[KENNEL]);
-		ShapeElement.init(vis.display, CIRCLE, DOG, images[DOG]);
-		ShapeElement.init(vis.display, RECT, CAVALRY, images[CAVALRY]);
+
+		for(l in Barracks.Launchers.keyValueIterator()){
+			ShapeElement.init(vis.display, l.value.shape, l.value.imageKey, images[l.value.imageKey]);
+			ShapeElement.init(vis.display, l.value.projectileStats.shape, l.value.projectileStats.imageKey, images[l.value.projectileStats.imageKey]);
+		}
+		
+		// ShapeElement.init(vis.display, RECT, LORD, images[LORD]);
+		// ShapeElement.init(vis.display, RECT, KENNEL, images[KENNEL]);
+		// ShapeElement.init(vis.display, CIRCLE, DOG, images[DOG]);
+		// ShapeElement.init(vis.display, RECT, CAVALRY, images[CAVALRY]);
 
 		phys.world.quadtree.max_depth = 2;
 		phys.world.static_quadtree.max_depth = 3;
@@ -78,15 +84,15 @@ class ScorchedEarth extends BaseScene {
 			waves: [
 				Global.currentWaveSetup != null ? Global.currentWaveSetup : {
 					launchers: [
-						Barracks.Launchers[KENNEL],
+						Barracks.Launchers[lDOGGER],
 					],
 					maximumActiveLaunchers: 2,
 				},
 				{
 					launchers: [
-						Barracks.Launchers[CAVALRY],
-						Barracks.Launchers[CAVALRY],
-						Barracks.Launchers[CAVALRY],
+						Barracks.Launchers[lDOGGER],
+						Barracks.Launchers[lBUBBLER],
+						Barracks.Launchers[lFOWLER],
 					],
 					maximumActiveLaunchers: 2,
 				}

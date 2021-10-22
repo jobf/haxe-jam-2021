@@ -25,7 +25,7 @@ class ShapePiece implements IGamePiece {
 	var flipFactorX:Int;
 	
 	public function new(elementKey:Int, color:Color, visibleWidth:Float, visibleHeight:Float, ?buffer:Buffer<ShapeElement>, body:Body, numShapeSides:Int = 3,
-			isFlippedX:Bool = false) {
+			isFlippedX:Bool) {
 		this.buffer = buffer == null ? ShapeElement.buffers[elementKey] : buffer;
 		this.isFlippedX = isFlippedX;
 		flipFactorX = isFlippedX ? -1 : 1;

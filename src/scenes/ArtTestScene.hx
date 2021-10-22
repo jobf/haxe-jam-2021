@@ -1,10 +1,10 @@
 package scenes;
 
-import core.Data.Barracks;
-import core.Data.ElementKey;
-import core.Data.Projectiles;
 import core.Launcher.TargetGroup;
 import core.Wave;
+import data.Barracks;
+import data.Global.ElementKey;
+import data.Projectiles;
 import echo.Body;
 import echo.World;
 import echo.data.Data.CollisionData;
@@ -31,15 +31,22 @@ class ArtTestScene extends BaseScene{
 
 	override function init() {
 		super.init();
+		
+		for(l in Barracks.Launchers.keyValueIterator()){
+			ShapeElement.init(vis.display, l.value.shape, l.value.imageKey, images[l.value.imageKey]);
+			ShapeElement.init(vis.display, l.value.projectileStats.shape, l.value.projectileStats.imageKey, images[l.value.projectileStats.imageKey]);
+		}
+		
         
         // ShapeElement.init(vis.display, RECT, LORD, images[LORD]);
-		ShapeElement.init(vis.display, RECT, KENNEL, images[KENNEL]);
-		ShapeElement.init(vis.display, CIRCLE, DOG, images[DOG]);
-		ShapeElement.init(vis.display, RECT, CAVALRY, images[CAVALRY]);
-		ShapeElement.init(vis.display, RECT, launcherARCHERS, images[launcherARCHERS]);
-		ShapeElement.init(vis.display, RECT, launcherBUBBLER, images[launcherBUBBLER]);
-		ShapeElement.init(vis.display, RECT, launcherKNIGHTHOUSE, images[launcherKNIGHTHOUSE]);
-		ShapeElement.init(vis.display, RECT, projectileKNIGHT, images[projectileKNIGHT]);
+		// ShapeElement.init(vis.display, RECT, KENNEL, images[KENNEL]);
+		// ShapeElement.init(vis.display, CIRCLE, DOG, images[DOG]);
+		// ShapeElement.init(vis.display, RECT, CAVALRY, images[CAVALRY]);
+		// ShapeElement.init(vis.display, RECT, lARCHER, images[lARCHER]);
+		// ShapeElement.init(vis.display, RECT, lBUBBLER, images[lBUBBLER]);
+		// ShapeElement.init(vis.display, RECT, lBUILDING, images[lBUILDING]);
+		// ShapeElement.init(vis.display, RECT, pKNIGHT, images[pKNIGHT]);
+		// ShapeElement.init(vis.display, RECT, pKNIGHT, images[pKNIGHT]);
         
 		pear.input.onKeyDown.connect((sig)->{
 			// restart scene 
@@ -66,23 +73,27 @@ class ArtTestScene extends BaseScene{
 				width: pear.window.width,
 				height: platformHeight,
 			}
-		});
+		}, false);
 		group.push(block);
 
 
         var stats:WaveStats = {
             launchers: [
-				Barracks.Launchers[launcherKNIGHTHOUSE],
-				Barracks.Launchers[launcherBUBBLER],
-				Barracks.Launchers[launcherARCHERS],
+				Barracks.Launchers[lBUILDING],
+				Barracks.Launchers[lBUBBLER],
+				Barracks.Launchers[lARCHER],
+				Barracks.Launchers[lDOGGER],
+				Barracks.Launchers[lFOWLER],
 			],
             maximumActiveLaunchers: 999
         };
 		var statsB:WaveStats = {
             launchers: [
-				Barracks.Launchers[launcherKNIGHTHOUSE],
-				Barracks.Launchers[launcherBUBBLER],
-				Barracks.Launchers[launcherARCHERS],
+				Barracks.Launchers[lBUILDING],
+				Barracks.Launchers[lBUBBLER],
+				Barracks.Launchers[lARCHER],
+				Barracks.Launchers[lDOGGER],
+				Barracks.Launchers[lFOWLER],
 			],
             maximumActiveLaunchers: 999
 

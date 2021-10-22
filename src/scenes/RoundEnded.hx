@@ -1,7 +1,7 @@
 package scenes;
 
-import core.Data.ElementKey;
-import core.Data.Global;
+import data.Global.ElementKey;
+import data.Global;
 import echo.Echo;
 import ob.pear.GamePiece.ShapePiece;
 import ob.pear.Pear;
@@ -31,7 +31,7 @@ class RoundEnded extends BaseScene {
 				height: 100,
 				solid: false,
 			}
-		});
+		}, false);
 
 
 		restart = pear.initShape(ElementKey.RESTART, Color.CYAN, {
@@ -45,7 +45,7 @@ class RoundEnded extends BaseScene {
 				height: 100,
 				solid: false,
 			}
-		});
+		}, false);
 
 		quit = pear.initShape(ElementKey.QUIT, Color.CYAN, {
 			x: pear.window.width - (200 * 0.5),
@@ -58,7 +58,7 @@ class RoundEnded extends BaseScene {
 				height: 100,
 				solid: false,
 			}
-		});
+		}, false);
 
 		pear.input.onMouseDown.connect((sig) -> {
 			if (canUpdate) {

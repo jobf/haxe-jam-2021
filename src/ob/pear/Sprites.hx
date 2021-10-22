@@ -1,5 +1,6 @@
 package ob.pear;
 
+import data.Global.ElementKey;
 import echo.data.Types.ShapeType;
 import lime.graphics.Image;
 import peote.view.Buffer;
@@ -57,21 +58,21 @@ class ShapeElement implements Element {
 			fragmentShader +=
 			if (fragmentShader.length > 0 && isDebug)
 				"
-					vec4 composeTex (vec4 texColor, vec4 c, float sides, float selected)
+					vec4 composeTex (vec4 texColor, vec4 tint, float sides, float selected)
 					{
-						vec4 shapeColor = compose(c, sides);
+						vec4 shapeColor = compose(tint, sides);
 						return mix(texColor, shapeColor, vec4(0.5));
 					}
 				";
 			else
 				"
-					vec4 composeTex (vec4 texColor, vec4 c, float sides, float selected)
+					vec4 composeTex (vec4 texColor, vec4 tint, float sides, float selected)
 					{
 						if(selected == 1.0 && texColor.a < 0.9){
 							texColor.r = 1.0;
 							texColor.a = 1.0;
 						}
-						return texColor;
+						return vec4(mix(texColor.rgb, tint.rgb, vec3(0.5)), texColor.a);
 					}
 				";
 			
@@ -88,7 +89,7 @@ class ShapeElement implements Element {
 		display.addProgram(programs[key]);
 	}
 
-	public function new(key:Int, positionX:Float, positionY:Float, width:Float, height:Float, color:Color, shape:ShapeType, numSides:Float = 3,
+	public function new(key:ElementKey, positionX:Float, positionY:Float, width:Float, height:Float, color:Color, shape:ShapeType, numSides:Float = 3,
 	                    isFlippedX:Bool) {
 		this.x = positionX;
 		this.y = positionY;
@@ -103,7 +104,7 @@ class ShapeElement implements Element {
 		}
 		buffers[key].addElement(this);
 		#if debug
-		trace('new element pos [${this.x}, ${this.y}]  dim [${this.w} (${this.radius}) * ${this.h}] pivot [${this.px_offset}, ${this.py_offset}] colour [${this.color}] sides [${this.sides}]');
+			trace('new element pos [${this.x}, ${this.y}]  dim [${this.w} (${this.radius}) * ${this.h}] pivot [${this.px_offset}, ${this.py_offset}] colour [${this.color}] sides [${this.sides}]');
 		#end
 	}
 }

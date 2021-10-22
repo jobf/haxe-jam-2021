@@ -1,6 +1,6 @@
 package scenes;
 
-import core.Data.ElementKey;
+import data.Global.ElementKey;
 import echo.data.Options.WorldOptions;
 import lime.graphics.Image;
 import ob.pear.GamePiece.ShapePiece;
@@ -46,7 +46,7 @@ class BaseScene extends Scene {
 				height: cursorSize,
 				solid: false
 			}
-		});
+		}, false);
 
 		pear.followMouse(cursor);
 	}

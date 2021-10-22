@@ -1,8 +1,9 @@
 package core;
 
-import core.Data.ElementKey;
 import core.Pieces;
 import core.Projectile.ProjectileStats;
+import data.Global.ElementKey;
+import data.Global;
 import echo.Body;
 import echo.Listener;
 import echo.data.Types.ShapeType;
@@ -125,7 +126,7 @@ class Launcher extends OverlordPiece {
 		var body = pear_.scene.phys.world.make(bodyOptions);
 		body.data.owner = this; // todo consolidate use of owner to gamePiece elsewhere
 		body.data.gamePiece = this;
-		var color = stats.color == null ? Color.CYAN : stats.color;
+		var color = Global.colors[playerId];
 		super(stats.imageKey, {player: playerId, pieceType: LAUNCHER}, color, stats.visualSize.x, stats.visualSize.y, body, isFlippedX);
 
 		isVulnerable = true;
@@ -207,10 +208,6 @@ class Launcher extends OverlordPiece {
 				}
 			}
 		}));
-
-		#if debug
-		trace('new launcher at $position');
-		#end
 	}
 
 	public function initProjectile():Projectile {

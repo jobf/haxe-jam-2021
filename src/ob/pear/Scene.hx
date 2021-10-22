@@ -80,7 +80,7 @@ class TestScene extends Scene {
 					width: pear.window.width,
 					height: tileSizeH,
 				}
-			});
+			}, false);
 		}
 		for (c in 0...numColumns + 1) {
 			var colorIndex = (c % 2 == 0 ? 0 : 1);
@@ -93,7 +93,7 @@ class TestScene extends Scene {
 					width: tileSizeW,
 					height: pear.window.height
 				}
-			});
+			}, false);
 		}
 
 		cursor = phys.initShape(stripeKey, 0xffffffa0, {
@@ -106,7 +106,7 @@ class TestScene extends Scene {
 				width: 64,
 				height: 64
 			}
-		});
+		}, false);
 
 		pear.followMouse(cursor, (piece, pos) -> {
 			piece.body.velocity.set(pos.x - piece.body.x, pos.y - piece.body.y);
