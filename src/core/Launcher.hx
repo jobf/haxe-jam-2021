@@ -85,6 +85,7 @@ class Launcher extends OverlordPiece {
 		pear = pear_;
 		tag = tag_;
 		isFlippedX = isFlippedX_;
+		flipFactorX = isFlippedX ? -1 : 1;
 		stats = stats_;
 		projectile = stats.projectileStats;
 		trajectory = stats.trajectory.clone();
