@@ -1,6 +1,5 @@
 package ob.pear;
 
-import echo.Body;
 
 class IntExtensions{
     public static function incrementMax(int:Int, max:Int){
@@ -22,3 +21,4 @@ class ArrayExtensions{
         return null;
     }
 }
+

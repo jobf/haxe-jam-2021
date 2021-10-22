@@ -3,6 +3,7 @@ package scenes;
 import core.Data.Barracks;
 import core.Data.ElementKey;
 import core.Data.Projectiles;
+import core.Launcher.TargetGroup;
 import core.Wave;
 import echo.Body;
 import echo.World;
@@ -77,23 +78,41 @@ class ArtTestScene extends BaseScene{
 			],
             maximumActiveLaunchers: 999
         };
-        var isFlippedX = false;
-        bodiesA = [];
-        var bodiesB = [];
+		var statsB:WaveStats = {
+            launchers: [
+				Barracks.Launchers[launcherKNIGHTHOUSE],
+				Barracks.Launchers[launcherBUBBLER],
+				Barracks.Launchers[launcherARCHERS],
+			],
+            maximumActiveLaunchers: 999
 
-        wave = new Wave(pear, stats, bodiesA, bodiesB, "BOT", isFlippedX);
+		};
 
-		clickHandler = new ClickHandler(bodiesA, cursor, phys.world);
+		// for(l in statsB.launchers){
+		// 	l.position
+		// }
+        var isFlippedX = true;
+        var isNotFlippedX = false;
+        
+        var bodiesA:TargetGroup = {launchers: [], projectiles: []};
+        var bodiesB:TargetGroup = {launchers: [], projectiles: []};
+
+        waveA = new Wave(0, pear, stats, bodiesA, bodiesB, "BOT A", isNotFlippedX);
+        waveB = new Wave(1, pear, statsB, bodiesB, bodiesA, "BOT B", isFlippedX);
+
+		clickHandler = new ClickHandler(bodiesA.launchers, cursor, phys.world);
 
 		pear.input.onMouseDown.connect((sig) -> clickHandler.onMouseDown());
 	}
     
 	override function update(deltaMs:Float) {
 		super.update(deltaMs);
-        wave.update(deltaMs);
+        waveA.update(deltaMs);
+        waveB.update(deltaMs);
 		group.all((item)->item.update(deltaMs));
     }
-	var wave:Wave;
+	var waveA:Wave;
+	var waveB:Wave;
 
 	var bodiesA:Array<Body>;
 	var clickHandler:ClickHandler;

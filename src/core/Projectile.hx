@@ -1,6 +1,7 @@
 package core;
 
 import core.Data.ElementKey;
+import core.Pieces;
 import echo.data.Options.BodyOptions;
 import echo.data.Types.ShapeType;
 import lime.math.Vector2;
@@ -24,25 +25,28 @@ typedef ProjectileStats = {
 
 
 
-class Projectile extends ShapePiece {
-	public function new(phys:Physical, x:Float, y:Float, stats:ProjectileStats, behaviour_:Delay, isFlippedX:Bool = false) {
+class Projectile extends OverlordPiece {
+	public function new(vitals:Vitals, phys:Physical, x:Float, y:Float, stats:ProjectileStats, behaviour_:Delay, isFlippedX:Bool = false) {
 		this.stats = stats;
 		var body = phys.world.make(stats.bodyOptions);
 		body.x = x;
 		body.y = y;
 		body.data.projectileData = stats;
+		body.data.gamePiece = this;
 		behaviour = behaviour_;
-		super(stats.imageKey, stats.color, stats.visualSize.x, stats.visualSize.y, body, isFlippedX);
+		super(stats.imageKey, vitals, stats.color, stats.visualSize.x, stats.visualSize.y, body, isFlippedX);
 	}
 
 	public function resetVelocity(){
 		body.velocity.set(0,0);
 	}
 
+
+
 	override function update(deltaMs:Float) {
+		if(isExpired) return;
 		super.update(deltaMs);
 		behaviour.wait(deltaMs, nextBehaviour);
-		// movement.wait(deltaMs, nextMovement);
 	}
 
 	function nextBehaviour() {

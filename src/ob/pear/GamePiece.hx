@@ -10,7 +10,7 @@ interface IGamePiece {
 	public var cloth(default, null):Element;
 	public var body(default, null):Body;
 	public function update(deltaTime:Float):Void;
-	public function remove():Void;
+	public function dispose():Void;
 	public function setColor(color:Color):Void;
 	public function click():Void;
 }
@@ -21,16 +21,15 @@ class ShapePiece implements IGamePiece {
 
 	var buffer:Buffer<ShapeElement>;
 	var color:Color;
-	var isXFlipped:Bool;
-
+	var isFlippedX:Bool;
+	var flipFactorX:Int;
+	
 	public function new(elementKey:Int, color:Color, visibleWidth:Float, visibleHeight:Float, ?buffer:Buffer<ShapeElement>, body:Body, numShapeSides:Int = 3,
 			isFlippedX:Bool = false) {
 		this.buffer = buffer == null ? ShapeElement.buffers[elementKey] : buffer;
-		isXFlipped = isFlippedX;
-		// if (isXFlipped) {
-		// 	visibleWidth = visibleWidth * -1;
-		// }
-		cloth = new ShapeElement(elementKey, body.x, body.y, visibleWidth, visibleHeight, color, body.shape.type, numShapeSides, isXFlipped);
+		this.isFlippedX = isFlippedX;
+		flipFactorX = isFlippedX ? -1 : 1;
+		cloth = new ShapeElement(elementKey, body.x, body.y, visibleWidth, visibleHeight, color, body.shape.type, numShapeSides, isFlippedX);
 		this.body = body;
 		this.body.on_move = onMove;
 		this.body.on_rotate = onRotate;
@@ -56,8 +55,9 @@ class ShapePiece implements IGamePiece {
 		// buffer.updateElement(cloth);
 	}
 
-	public function remove():Void {
+	public function dispose():Void {
 		body.remove();
+		// cloth.color.alpha = 0x00;
 		buffer.removeElement(cloth);
 	}
 
@@ -116,7 +116,7 @@ class MultiShapePiece implements IGamePiece {
 		}
 	}
 
-	public function remove():Void {
+	public function dispose():Void {
 		body.remove();
 		buffer.removeElement(cloth);
 	}

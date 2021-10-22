@@ -5,6 +5,7 @@ import core.Data.ElementKey;
 import core.Data.Global;
 import core.Data.Projectiles;
 import core.Data.Rounds;
+import core.Launcher.TargetGroup;
 import core.Player;
 import echo.Body;
 import echo.Echo;
@@ -27,8 +28,8 @@ enum Direction {
 
 class ScorchedEarth extends BaseScene {
 	var pieces:Array<IGamePiece> = [];
-	var playerATargets:Array<Body>;
-	var playerBTargets:Array<Body>;
+	var playerATargets:TargetGroup;
+	var playerBTargets:TargetGroup;
 	var playerA:Player;
 	var playerB:Player;
 	var isWaveOver:Bool;
@@ -91,12 +92,12 @@ class ScorchedEarth extends BaseScene {
 				}
 			]
 		}
-		playerA = new Player(pear, playerPosA, false, playerAConfig);
+		playerA = new Player(0, pear, playerPosA, false, playerAConfig);
 		// player is vulnerable by default, for testing we don't want that
 		playerA.toggleIsVulnerable(); // todo - check this works `^_^
 
 		var playerPosB = new Vector2(1000, pear.window.height);
-		playerB = new Player(pear, playerPosB, true, Rounds.opponents[Global.opponentIndex]);
+		playerB = new Player(1, pear, playerPosB, true, Rounds.opponents[Global.opponentIndex]);
 
 		isWaveOver = false;
 		isRoundOver = false;
@@ -107,8 +108,8 @@ class ScorchedEarth extends BaseScene {
 	}
 
 	function startNextWave() {
-		playerATargets = [];
-		playerBTargets = [];
+		playerATargets = {launchers: [], projectiles: []};
+		playerBTargets = {launchers: [], projectiles: []};
 		playerA.startWave(playerATargets, playerBTargets);
 		playerB.startWave(playerBTargets, playerATargets);
 	}
@@ -160,7 +161,7 @@ class ScorchedEarth extends BaseScene {
 	}
 
 	function handleMouseClick() {
-		Echo.check(phys.world, cursor.body, playerATargets, {
+		Echo.check(phys.world, cursor.body, playerATargets.launchers, {
 			enter: (cursor, launcher, collisions) -> {
 				playerA.selectLauncher(launcher.id);
 			},

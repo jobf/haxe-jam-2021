@@ -2,6 +2,7 @@ package core;
 
 import core.Data.ElementKey;
 import core.Data.OpponentConfig;
+import core.Launcher.TargetGroup;
 import core.Wave.WaveStats;
 import echo.Body;
 import lime.math.Vector2;
@@ -16,6 +17,7 @@ class Player {
 	public var lord(default, null):ShapePiece;
 
 	var isFlippedX:Bool;
+	var playerId:Int;
 	var pear:Pear;
 	var wave:Wave;
 	var isWaveInProgress:Bool = false;
@@ -25,7 +27,8 @@ class Player {
 	public var isWaveDefeated(default, null):Bool = false;
 	public var isDefeated(default, null):Bool = false;
 
-	public function new(pear_:Pear, position:Vector2, flipX:Bool, config_:OpponentConfig) {
+	public function new(playerId_:Int, pear_:Pear, position:Vector2, flipX:Bool, config_:OpponentConfig) {
+		playerId = playerId_;
 		pear = pear_;
 		config = config_;
 		isFlippedX = flipX;
@@ -47,10 +50,10 @@ class Player {
 		lord.cloth.z = -30;
 	}
 
-	public function startWave(targets:Array<Body>, opponentTargets:Array<Body>) {
+	public function startWave(targets:TargetGroup, opponentTargets:TargetGroup) {
 		var waveConfig = config.waves[waveIndex];
 		trace(' waveConfig $waveConfig');
-		wave = new Wave(pear, waveConfig, targets, opponentTargets, tag, isFlippedX);
+		wave = new Wave(playerId, pear, waveConfig, targets, opponentTargets, tag, isFlippedX);
 		isWaveDefeated = false;
 		isWaveInProgress = true;
 	}

@@ -1,6 +1,7 @@
 package core;
 
 import core.Data.ElementKey;
+import core.Pieces;
 import core.Projectile.ProjectileStats;
 import echo.Body;
 import echo.Listener;
@@ -13,6 +14,7 @@ import ob.pear.Pear;
 import peote.view.Color;
 import scenes.ScorchedEarth.Direction;
 
+using core.Pieces.BodyExtensions;
 using ob.pear.Delay.DelayExtensions;
 using ob.pear.Delay.TweenExtensions;
 
@@ -23,7 +25,6 @@ enum LauncherState {
 	TakeDamage;
 	Expired;
 }
-
 
 typedef Movement = {
 	velocity:Vector2,
@@ -41,7 +42,7 @@ typedef LauncherStats = {
 	?maxProjectiles:Int,
 	trajectory:Vector2,
 	movements:Array<Movement>,
-	heightMinMax: Vector2,
+	heightMinMax:Vector2,
 	?color:Color,
 	tag:String,
 	projectileStats:ProjectileStats
@@ -52,7 +53,9 @@ typedef LauncherConfig = {
 	projectile:ProjectileStats
 }
 
-class Launcher extends ShapePiece {
+typedef TargetGroup = {launchers:Array<Body>, projectiles:Array<Body>}
+
+class Launcher extends OverlordPiece {
 	var pear:Pear;
 
 	public var stats(default, null):LauncherStats;
@@ -62,9 +65,10 @@ class Launcher extends ShapePiece {
 
 	public var projectiles(default, null):Array<Projectile> = [];
 
-	var projectileBodies:Array<Body> = [];
-	var opponentTargets:Array<Body>;
-	var worldListener:Listener;
+	// var projectileBodies:Array<Body> = [];
+	var targets:TargetGroup;
+	var opponentTargets:TargetGroup;
+	var worldListeners:Array<Listener> = [];
 	var status:LauncherState;
 
 	var rateLimiter:Delay;
@@ -73,20 +77,22 @@ class Launcher extends ShapePiece {
 	var recoverFromHit:Delay;
 	var isVulnerable:Bool;
 	var tag:String;
-	public var hp(default, null):Float;
-	var isFlippedX:Bool;
 
-	public function new(pear_:Pear, stats_:LauncherStats, opponentTargets_:Array<Body>, position:Vector2, tag_:String, isFlippedX_:Bool) {
+	public var hp(default, null):Float;
+
+	public function new(playerId:Int, pear_:Pear, stats_:LauncherStats, targets_:TargetGroup, opponentTargets_:TargetGroup, position:Vector2, tag_:String,
+			isFlippedX_:Bool) {
 		pear = pear_;
 		tag = tag_;
 		isFlippedX = isFlippedX_;
 		stats = stats_;
 		projectile = stats.projectileStats;
 		trajectory = stats.trajectory.clone();
-		if(isFlippedX){
+		if (isFlippedX) {
 			trajectory.x *= -1;
 		}
 		hp = stats.health;
+		targets = targets_;
 		opponentTargets = opponentTargets_;
 
 		// ensure optionals are not null
@@ -96,9 +102,9 @@ class Launcher extends ShapePiece {
 			projectile.visualSize = new Vector2(projectile.bodyOptions.shape.width, projectile.bodyOptions.shape.height);
 		if (stats.maxProjectiles == null)
 			stats.maxProjectiles = 999999;
-		
+
 		// position is center of entity so adjust to fit.
-		position.x += stats.bodySize.x * 0.5; // nudge towards right of screen by 50% of size
+		position.x += (stats.bodySize.x * 0.5) * flipFactorX; // nudge towards right of screen by 50% of size
 		position.y -= stats.bodySize.y * 0.5; // nudge towards top of screen by 50% of size
 		var bodyOptions = {
 			x: position.x,
@@ -114,16 +120,16 @@ class Launcher extends ShapePiece {
 				solid: false,
 			}
 		};
+		trace('launcher at ${position.x} ${position.y}');
 		var body = pear_.scene.phys.world.make(bodyOptions);
 		body.data.owner = this; // todo consolidate use of owner to gamePiece elsewhere
 		body.data.gamePiece = this;
 		var color = stats.color == null ? Color.CYAN : stats.color;
-		super(stats.imageKey, color, stats.visualSize.x, stats.visualSize.y, body, isFlippedX);
+		super(stats.imageKey, {player: playerId, pieceType: LAUNCHER}, color, stats.visualSize.x, stats.visualSize.y, body, isFlippedX);
 
 		isVulnerable = true;
 		status = Idle;
 		var movementIndex = 0;
-
 		// set up movement pattern
 		if (stats.movements.length > 0) {
 			pear.scene.tweens.push({
@@ -132,7 +138,7 @@ class Launcher extends ShapePiece {
 				stepMs: 0.32,
 				isLooped: true,
 				onStart: (launcher, data) -> {
-					launcher.body.velocity.x = stats.movements[movementIndex].velocity.x;
+					launcher.body.velocity.x = stats.movements[movementIndex].velocity.x * flipFactorX;
 					launcher.body.velocity.y = stats.movements[movementIndex].velocity.y;
 				},
 				onCheck: (launcher:Launcher, totalMs:Float, data:Vector2) -> {
@@ -143,7 +149,7 @@ class Launcher extends ShapePiece {
 					if (movementIndex > stats.movements.length - 1) {
 						movementIndex = 0;
 					}
-					launcher.body.velocity.x = stats.movements[movementIndex].velocity.x;
+					launcher.body.velocity.x = stats.movements[movementIndex].velocity.x * flipFactorX;
 				},
 			});
 		}
@@ -159,17 +165,47 @@ class Launcher extends ShapePiece {
 		prepareShot = pear.delayFactory.Default(stats.states[Prepare], true, false);
 		madeShot = pear.delayFactory.Default(stats.states[Shoot], true, false);
 		recoverFromHit = pear.delayFactory.Default(stats.states[TakeDamage]);
-		
-		
-		// set up projectile collisions 
-		worldListener = pear.scene.phys.world.listen(opponentTargets, projectileBodies, {
-			enter: (target, projectile, collisions) -> {
-				var launcher:Launcher = cast target.data.gamePiece;
-				if(launcher != null){
-					launcher.takeDamage(projectile);
+
+		// set up projectile collisions
+		worldListeners.push(pear.scene.phys.world.listen(opponentTargets.launchers, targets.projectiles, {
+			enter: (A, B, collisions) -> {
+				var a = A.getVitals();
+				var b = B.getVitals();
+				// no friendly fire!
+				if (a.player == b.player)
+					return;
+				// no same type collisions handled  here
+				if (a.pieceType == b.pieceType)
+					return;
+
+				var targetBody = a.pieceType == LAUNCHER ? A : B;
+				var projectileBody = b.pieceType == PROJECTILE ? B : A;
+				var target:Launcher = cast targetBody.data.gamePiece;
+				// var projectile:Projectile = cast projectileBody.data.gamePiece;
+				target.takeDamage(projectileBody);
+			}
+		}));
+		worldListeners.push(pear.scene.phys.world.listen(opponentTargets.projectiles, targets.projectiles, {
+			enter: (A, B, collisions) -> {
+				var a = A.getVitals();
+				var b = B.getVitals();
+				// no friendly fire!
+				if (a.player == b.player)
+					return;
+				// ONLY same type collisions handled  here
+				if (a.pieceType != b.pieceType)
+					return;
+
+				if(a.pieceType == PROJECTILE){
+					// var ours = a.player == playerId ? A : B;
+					// var theirs = a.player == playerId ? B : A;
+					var pieceA:Projectile = cast A.data.gamePiece;
+					var pieceB:Projectile = cast B.data.gamePiece;
+					pieceA.expire();
+					pieceB.expire();
 				}
 			}
-		});
+		}));
 
 		#if debug
 		trace('new launcher at $position');
@@ -179,9 +215,9 @@ class Launcher extends ShapePiece {
 	public function initProjectile():Projectile {
 		var behaviourCheckFrequency = 0.064; // 4 frames?
 		var behaviour = pear.delayFactory.Default(behaviourCheckFrequency, true, true);
-		var piece = new Projectile(pear.scene.phys, body.x, body.y, projectile, behaviour, isFlippedX);
+		var piece = new Projectile({player: vitals.player, pieceType: PROJECTILE}, pear.scene.phys, body.x, body.y, projectile, behaviour, isFlippedX);
 		projectiles.push(piece);
-		projectileBodies.push(piece.body);
+		targets.projectiles.push(piece.body);
 		return piece;
 	}
 
@@ -200,7 +236,7 @@ class Launcher extends ShapePiece {
 				log += ' by ${projectileBody.data.tag} projectile causing damaged ${projectileData.damagePower}';
 				hp -= projectileData.damagePower;
 			}
-			trace(log);
+			// trace(log);
 		}
 	}
 
@@ -225,8 +261,10 @@ class Launcher extends ShapePiece {
 	public function destroy() {
 		trace('$tag launcher destroyed');
 		setColor(Color.RED);
-		pear.scene.phys.world.listeners.remove(worldListener);
-		remove();
+		for (l in worldListeners) {
+			pear.scene.phys.world.listeners.remove(l);
+		}
+		expire();
 	}
 
 	function onPrepareShotFinish() {
@@ -259,7 +297,6 @@ class Launcher extends ShapePiece {
 		// prepareShot.start();
 	}
 
-
 	function onRateLimitFinish() {
 		// trace('...aim...');
 		status = Prepare;
@@ -270,21 +307,20 @@ class Launcher extends ShapePiece {
 	}
 
 	var tween:Tween<Launcher>;
-	var mouseFollow:Vector2 -> Void;
+	var mouseFollow:Vector2->Void;
+
 	override function click() {
-		if(mouseFollow == null){
+		if (mouseFollow == null) {
 			mouseFollow = pear.followMouse(this);
-		}
-		else{
+		} else {
 			pear.input.onMouseMove.disconnect(mouseFollow);
 			mouseFollow = null;
 		}
 	}
+
 	override public function update(dt:Float) {
+		if(isExpired) return;
 		super.update(dt);
-		// if (stats.health <= 0) {
-		// 	destroy();
-		// }
 
 		if (projectiles.length < stats.maxProjectiles) {
 			rateLimiter.wait(dt, onRateLimitFinish);
@@ -294,34 +330,29 @@ class Launcher extends ShapePiece {
 		recoverFromHit.wait(dt, onRecoverFromHit);
 
 		for (p in projectiles) {
+			if(p.isExpired) continue;
 			
-			 // !!! todo
 			p.update(dt);
 
+			if(p.isRemoveNextUpdate || pear.scene.phys.isOutOfBounds(p.body)){
+				p.isExpired = true;
+			}
 
-			if (pear.scene.phys.isOutOfBounds(p.body)) {
-				// // stop
-				// p.body.velocity.set(0, 0);
-				// // reset posiiton
-				// p.body.set_position(position.x, position.y);
-				// // launch again
-				// launchProjectile(p);
-
-				// todo - recycle projectiles?
+			if(p.isExpired){
 				projectiles.remove(p);
-				p.remove();
+				targets.projectiles.remove(p.body);
+				p.dispose();
 			}
 		}
 	}
 
-	public function moveTo(speed:Float, moveBy:Vector2) {
-		// todo tween this
-		body.velocity.x = speed;
-		// body.active = true;
-		trace('ent velocity ${body.velocity}');
-		body.set_position(pear.window.width * 0.5, pear.window.height * 0.5);
-		// body.set_position(body.x + moveBy.x, body.y + moveBy.y);
-	}
+	// public function moveTo(speed:Float, moveBy:Vector2) {
+	// 	// todo tween this
+	// 	body.velocity.x = speed;
+	// 	// body.active = true;
+	// 	trace('ent velocity ${body.velocity}');
+	// 	body.set_position(pear.window.width * 0.5, pear.window.height * 0.5);
+	// }
 
 	var amount = 10;
 

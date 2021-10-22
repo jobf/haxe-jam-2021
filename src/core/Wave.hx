@@ -3,6 +3,7 @@ package core;
 import core.Data.Barracks;
 import core.Launcher.LauncherConfig;
 import core.Launcher.LauncherStats;
+import core.Launcher.TargetGroup;
 import echo.Body;
 import lime.math.Vector2;
 import ob.pear.Delay;
@@ -22,15 +23,17 @@ class Wave {
 	var stats:WaveStats;
 	var launcherLimiter:Delay;
 	var activeLaunchers:Array<Launcher> = [];
-	var targets:Array<Body>;
-	var opponentTargets:Array<Body>;
+	var targets:TargetGroup;
+	var opponentTargets:TargetGroup;
 	var tag:String;
 	var launcherIndex:Int = 0;
 	var numLaunchersRemaining:Int;
 	public var isDefeated(default, null):Bool;
 	var isFlippedX:Bool;
+	var playerId:Int;
 
-	public function new(pear_:Pear, stats_:WaveStats, targets_:Array<Body>, opponentTargets_:Array<Body>, tag_:String, isFlippedX_:Bool) {
+	public function new(playerId_:Int, pear_:Pear, stats_:WaveStats, targets_:TargetGroup, opponentTargets_:TargetGroup, tag_:String, isFlippedX_:Bool) {
+		playerId = playerId_;
 		pear = pear_;
 		stats = stats_;
 		targets = targets_;
@@ -47,13 +50,18 @@ class Wave {
 		
 		launcherLimiter.wait(dt, onLauncherLimitFinish);
 		
-		for (l in activeLaunchers) {
-			l.update(dt);
-			if (l.hp <= 0) {
-				activeLaunchers.remove(l);
-				l.destroy();
+		for (launcher in activeLaunchers) {
+			launcher.update(dt);
+
+			if (launcher.hp <= 0) {
+				activeLaunchers.remove(launcher);
+				launcher.destroy();
 				numLaunchersRemaining--;
 			}
+
+			// if(launcher.isExpired){
+			// 	launcher.dispose();
+			// }
 		}
 
 		isDefeated = numLaunchersRemaining <= 0;
@@ -101,18 +109,21 @@ class Wave {
 
 		if (activeLaunchers.length < stats.maximumActiveLaunchers && launcherIndex < stats.launchers.length) {
 			var next = stats.launchers[launcherIndex];
+			var launcherPos:Vector2;
 			if(next.position == null){
 				var heightPercent = Random.range(next.heightMinMax.x, next.heightMinMax.y);
-				var widthOffset = 10;
-				next.position = new Vector2(widthOffset, heightPercent * pear.window.height);
+				var x = isFlippedX ? pear.window.width - 10 : 10;
+				launcherPos = new Vector2(x, heightPercent * pear.window.height);
+			}
+			else{
+				launcherPos = next.position.clone();
 			}
 			if (isFlippedX) {
-				next.position.x *= -1;
+				// next.position.x *= -1;
 			}
-			var launcherPos = next.position;
-			var launcher = new Launcher(pear, next, opponentTargets, launcherPos, tag, isFlippedX);
+			var launcher = new Launcher(playerId, pear, next, targets, opponentTargets, launcherPos, tag, isFlippedX);
 			activeLaunchers.push(launcher);
-			targets.push(launcher.body);
+			targets.launchers.push(launcher.body);
 			launcherIndex++;
 		}
 	}

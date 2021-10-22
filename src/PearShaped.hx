@@ -32,8 +32,8 @@ class PearShaped extends Application {
 				// pear.changeScene(new RoundEnded(pear, imageMap));
 				// pear.changeScene(new ScorchedEarth(pear, imageMap));
 				// pear.changeScene(new Title(pear, imageMap));
-				// pear.changeScene(new ArtTestScene(pear, imageMap));
-				pear.changeScene(new WaveSetupScene(pear, imageMap));
+				pear.changeScene(new ArtTestScene(pear, imageMap));
+				// pear.changeScene(new WaveSetupScene(pear, imageMap));
 				readyToUpdate = true;
 			});
 		});
