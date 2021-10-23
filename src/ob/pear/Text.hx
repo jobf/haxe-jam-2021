@@ -18,12 +18,18 @@ class Text {
 
 	var fontProgram:FontProgram<GlyphStyleTiled>;
 
-	public function write(chars:String, x:Float, y:Float):Line<GlyphStyleTiled>{
+	public function write(chars:String, x:Float, y:Float, bgColor:Color = null):Line<GlyphStyleTiled>{
 		var line = fontProgram.createLine(chars, x, y);
-		var offsetX = x - line.get_textSize() * 0.5;
-		var offsetY = y - line.get_height() * 0.5;
+		
+		var lineWidth = line.get_textSize();
+		var lineHeight = line.get_height();
+		var offsetX = x - lineWidth * 0.5;
+		var offsetY = y - lineHeight * 0.5;
 		fontProgram.lineSetPosition(line, offsetX, offsetY);
 		fontProgram.updateLine(line);
+		if(bgColor != null){
+			fontProgram.createBackground(offsetX, offsetY, lineWidth, lineHeight, Layers.TEXT -1, bgColor);
+		}
 		return line;
 	}
 	
@@ -35,6 +41,7 @@ class Text {
 
 class GlyphStyleTiled {
 	public var color:Color = 0xffffffFF;
+	// public var color:Color = 0xffffffFF;
 	public var width:Float = 16;
 	public var height:Float = 16;
 	public var tilt:Float = 0.0;

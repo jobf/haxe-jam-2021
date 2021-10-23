@@ -13,7 +13,6 @@ import lime.graphics.Image;
 import ob.pear.GamePiece.IGamePiece;
 import ob.pear.GamePiece.ShapePiece;
 import ob.pear.Input.ClickHandler;
-import ob.pear.Pear;
 import ob.pear.Sprites.ShapeElement;
 
 using ob.pear.Util.ArrayExtensions;
@@ -37,16 +36,6 @@ class ArtTestScene extends BaseScene{
 			ShapeElement.init(vis.display, l.value.projectileStats.shape, l.value.projectileStats.imageKey, images[l.value.projectileStats.imageKey]);
 		}
 		
-        
-        // ShapeElement.init(vis.display, RECT, LORD, images[LORD]);
-		// ShapeElement.init(vis.display, RECT, KENNEL, images[KENNEL]);
-		// ShapeElement.init(vis.display, CIRCLE, DOG, images[DOG]);
-		// ShapeElement.init(vis.display, RECT, CAVALRY, images[CAVALRY]);
-		// ShapeElement.init(vis.display, RECT, lARCHER, images[lARCHER]);
-		// ShapeElement.init(vis.display, RECT, lBUBBLER, images[lBUBBLER]);
-		// ShapeElement.init(vis.display, RECT, lBUILDING, images[lBUILDING]);
-		// ShapeElement.init(vis.display, RECT, pKNIGHT, images[pKNIGHT]);
-		// ShapeElement.init(vis.display, RECT, pKNIGHT, images[pKNIGHT]);
         
 		pear.input.onKeyDown.connect((sig)->{
 			// restart scene 
@@ -83,6 +72,8 @@ class ArtTestScene extends BaseScene{
 				{pos: null, stats: Barracks.Launchers[lBUBBLER]},
 				{pos: null, stats: Barracks.Launchers[lARCHER]},
 				{pos: null, stats: Barracks.Launchers[lDOGGER]},
+				{pos: null, stats: Barracks.Launchers[lDOGGER]},
+				{pos: null, stats: Barracks.Launchers[lDOGGER]},
 				{pos: null, stats: Barracks.Launchers[lFOWLER]},
 			],
             maximumActiveLaunchers: 999
@@ -109,8 +100,8 @@ class ArtTestScene extends BaseScene{
         var bodiesA:TargetGroup = {launchers: [], projectiles: []};
         var bodiesB:TargetGroup = {launchers: [], projectiles: []};
 
-        waveA = new Wave(0, pear, stats, bodiesA, bodiesB, "BOT A", isNotFlippedX);
-        waveB = new Wave(1, pear, statsB, bodiesB, bodiesA, "BOT B", isFlippedX);
+        waveA = new Wave(PlayerId.A, pear, stats, bodiesA, bodiesB, "BOT A", isNotFlippedX);
+        waveB = new Wave(PlayerId.B, pear, statsB, bodiesB, bodiesA, "BOT B", isFlippedX);
 
 		launchersClickHandler = new ClickHandler(cursor, phys.world);
 		launchersClickHandler.listenForClicks(bodiesA.launchers);

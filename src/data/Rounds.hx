@@ -24,24 +24,40 @@ class Rounds {
 					launchers: [
 						{ pos: null, stats: Barracks.Launchers[lBUBBLER]},
 					],
-					maximumActiveLaunchers: 2,
+					maximumActiveLaunchers: 1,
 				}
 			]
 		},
 		{
-			name: "Karl of the Kabal",
+			name: "Knights Who Say \"Ni!\"",
 			imageKey: BOB,
 			waves: [
 				{
 					launchers: [
 						{ pos: null, stats: Barracks.Launchers[lBUILDING]},
 					],
+					maximumActiveLaunchers: 1,
+				}
+			]
+		},
+		{
+			name: "Tights in the hood",
+			imageKey: BOB,
+			waves: [
+				{
+					launchers: [
+						{ pos: null, stats: Barracks.Launchers[lFOWLER]},
+						{ pos: null, stats: Barracks.Launchers[lARCHER]},
+						{ pos: null, stats: Barracks.Launchers[lARCHER]},
+						{ pos: null, stats: Barracks.Launchers[lBUBBLER]},
+					],
 					maximumActiveLaunchers: 2,
 				},
 				{
 					launchers: [
+						{ pos: null, stats: Barracks.Launchers[lBUILDING]},
 						{ pos: null, stats: Barracks.Launchers[lARCHER]},
-						{ pos: null, stats: Barracks.Launchers[lARCHER]},
+						{ pos: null, stats: Barracks.Launchers[lFOWLER]},
 						{ pos: null, stats: Barracks.Launchers[lARCHER]},
 					],
 					maximumActiveLaunchers: 2,

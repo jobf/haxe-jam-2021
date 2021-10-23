@@ -14,11 +14,18 @@ class Barracks {
 			heightMinMax: new Vector2(0.9, 0.99),
 			bodySize: Size.calcVisual(2, 3),
 			visualSize: Size.calcBody(2, 3),
-			health: 100,
+			health: 200,
 			trajectory: new Vector2(130, -130),
 			projectileStats: Projectiles.DOG_HURL,
 			states: [Idle => 0.7, Prepare => 0.2, Shoot => 0.1, TakeDamage => 0.2],
-			movements: []
+			movements: [{
+				velocity: new Vector2(45, 0),
+				durationMs: 1.2 / 1000,
+			},
+			{
+				velocity: new Vector2(-45, 0),
+				durationMs: 1.2 / 1000,
+			}]
 		},
 		lBUBBLER => {
 			tag: "hair balls",

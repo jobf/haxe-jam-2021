@@ -9,7 +9,6 @@ import lime.graphics.Image;
 import lime.math.Vector2;
 import ob.pear.GamePiece.ShapePiece;
 import ob.pear.Input.ClickHandler;
-import ob.pear.Pear;
 import ob.pear.Sprites.ShapeElement;
 import ob.pear.UI;
 
@@ -29,31 +28,17 @@ class WaveSetupScene extends BaseScene {
 
 	override function init() {
 		super.init();
-		// vis.text.write("Hello from peote-world", pear.window.width * 0.5, pear.window.height * 0.5);
-		// ShapeElement.init(vis.display, RECT, LORD, images[LORD]);
-		// ShapeElement.init(vis.display, RECT, KENNEL, images[KENNEL]);
-		// ShapeElement.init(vis.display, CIRCLE, DOG, images[DOG]);
-		// ShapeElement.init(vis.display, RECT, CAVALRY, images[CAVALRY]);
-		// ShapeElement.init(vis.display, RECT, lARCHER, images[lARCHER]);
-		// ShapeElement.init(vis.display, RECT, lBUBBLER, images[lBUBBLER]);
-		// ShapeElement.init(vis.display, RECT, lBUILDING, images[lBUILDING]);
-		// ShapeElement.init(vis.display, RECT, pKNIGHT, images[pKNIGHT]);
-
 
 		for(l in Barracks.Launchers.keyValueIterator()){
 			ShapeElement.init(vis.display, l.value.shape, l.value.imageKey, images[l.value.imageKey]);
 			ShapeElement.init(vis.display, l.value.projectileStats.shape, l.value.projectileStats.imageKey, images[l.value.projectileStats.imageKey]);
 		}
-		
-		pear.input.onKeyDown.connect((sig) -> {
-			// restart scene
-			if (sig.key == BACKSPACE)
-				pear.changeScene(new WaveSetupScene(pear, images));
-		});
 
-		// pear.input.onMouseDown.connect((sig) -> {
-		// 	trace('mouse is clicked ${sig.x}, ${sig.y}');
-		// });
+		// var textX = pear.window.width * 0.5;
+		// var textY = 0;
+		// var text = "";
+		// vis.text.write(text, textX, textY);
+
 		var worldCollideOptions:ListenerOptions = {
 			// placeholder
 		};
@@ -63,9 +48,6 @@ class WaveSetupScene extends BaseScene {
 		waveSetup.readyButton.onClick = (b) -> {
 			StartGameAlready();
 		};
-
-		// buttonsClickHandler = new ClickHandler(cursor, phys.world);
-		// buttonsClickHandler.listenForClicks(waveSetup.buttons);
 	}
 
 	function StartGameAlready(){
@@ -74,6 +56,11 @@ class WaveSetupScene extends BaseScene {
 			maximumActiveLaunchers: 100 // todo
 		}
 		var placedItems = group.filter((g) -> g.body.x < waveSetup.availableContainer.w);
+		
+		if(placedItems.length <= 0){
+			return;
+		}
+		
 		for (item in placedItems) {
 			var button:LauncherButton = cast item;
 			// button.launcherStats.position = new Vector2(item.body.x, item.body.y);
@@ -83,6 +70,7 @@ class WaveSetupScene extends BaseScene {
 			#end
 			waveConfig.launchers.push(config);
 		}
+		
 		Global.currentWaveSetup = waveConfig;
 
 		pear.changeScene(new ScorchedEarth(pear, images));
@@ -126,7 +114,7 @@ class LauncherButton extends ShapePiece {
 			}
 		};
 		var body = pear.scene.phys.world.make(bodyOptions);
-		super(stats.imageKey, stats.color, bodyOptions.shape.width, bodyOptions.shape.height, body, isFlippedX);
+		super(stats.imageKey, Global.colors[PlayerId.A], bodyOptions.shape.width, bodyOptions.shape.height, body, isFlippedX);
 	}
 
 	var mouseFollow:Vector2->Void;
@@ -162,6 +150,11 @@ class WaveSetup {
 		var margin = pear.window.height * 0.015;
 		var width = (pear.window.width * 0.5) - (margin * 2);
 		var height = pear.window.height - (margin * 2);
+
+		var place = new ShapeElement(RECT, margin + (width * 0.5), margin + (height * 0.5), width, height, 0x22222244, RECT,  false);
+		place.z = Layers.IMAGES;
+		ShapeElement.buffers[RECT].updateElement(place);
+		
 		availableContainer = {
 			x: width + margin,
 			y: margin,
@@ -174,33 +167,35 @@ class WaveSetup {
 		var readyButtonX = pear.window.width - buttonsize.x - margin + buttonsize.x * 0.5;
 		var readyButtonY = pear.window.height - buttonsize.y - margin + buttonsize.y * 0.5;
 		
-		readyButton = new TextButton(pear, 0xacb475FF, readyButtonX, readyButtonY, buttonsize, "START");
+		readyButton = new TextButton(pear, Global.colors[A], readyButtonX, readyButtonY, buttonsize, "START");
 		readyButton.body.data.gamePiece = readyButton;
 		clickHandler.registerPiece(readyButton);
 		
-		pear.scene.vis.text.write("arrange units", availableContainer.x, readyButtonY);
+		pear.scene.vis.text.write("arrange units (click to stick/drop)", availableContainer.x, readyButtonY, Global.textBgColor);
 
 		var numColumns = Std.int(availableContainer.w / buttonsize.x);
 		var numRows = Std.int(availableContainer.h / buttonsize.y);
-		var keys = [for (k in Barracks.Launchers.keys()) k];
+		
 		var i = 0;
 		for (r in 0...numRows) {
 			for (c in 0...numColumns) {
-				var l = Barracks.Launchers[keys[i]];
-				if (l == null) {
+				var stats = Global.availableLaunchers[i];
+				if (stats == null) {
 					// no more to display
 					break;
 				}
+				
 				var xOffset = availableContainer.x + (c * buttonsize.x) + buttonsize.x * 0.5;
 				var yOffset = availableContainer.y + (r * buttonsize.x) + buttonsize.y * 0.5;
-				var button = new LauncherButton(pear, l, xOffset, yOffset, buttonsize);
-				trace('added button for ${l.tag}');
+				var button = new LauncherButton(pear, stats, xOffset, yOffset, buttonsize);
 				button.body.data.gamePiece = button;
 				buttons.push(button.body);
 				group.push(button);
 				clickHandler.registerPiece(button);
-				// clickHandler.targets.push(readyButton.body);
-				// clickHandler.group.push(readyButton);
+				
+				#if debug
+				trace('added button for ${stats.tag}');
+				#end
 				
 				i++;
 			}

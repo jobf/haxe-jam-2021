@@ -1,5 +1,6 @@
 package data;
 
+import core.Launcher.LauncherStats;
 import core.Wave.WaveStats;
 import lime.graphics.Image;
 import lime.math.Vector2;
@@ -7,15 +8,32 @@ import peote.view.Color;
 import utils.Loader;
 
 class Global {
+	
+	public static var cursorColor:Color = 0xf01bf388; //0x44ff44aa
+	public static var textBgColor:Color = 0x7fb3e1FF;//0xb7dbfaFF;//0x4370ccff;//0x905a00ff;
+	public static var onHoverColor:Color = 0x7af31bFF;
+	
 	public static var fontSize:Int = 32;
-	public static var margin:Int = 15;
-	public static var wonLastRound:Int = 0;
+	public static var margin:Float = 15.0;
+	public static var whoWonLastRound:Int = 0;
 	public static var opponentIndex:Int = 0;
 	public static var currentWaveSetup:WaveStats;
-	public static var colors:Map<Int, Color> = [
-		0 => 0x1b4bacff,
-		1 => 0xac1b75ff,
+	public static var colors:Map<PlayerId, Color> = [
+		A => textBgColor,//0x1b4bacff,
+		B => 0xe09a94FF//0xf36464ff//0xac1b75ff,
 	];
+	public static var availableLaunchers:Array<LauncherStats> = [];
+
+	public static function resetGame(){
+		availableLaunchers = [Barracks.Launchers[lBUBBLER]];
+		opponentIndex = 0;
+		whoWonLastRound = 0;
+	}
+}
+
+@:enum abstract PlayerId(Int) from Int to Int {
+	var A = 1;
+	var B = 2;
 }
 
 // z-index for various elements
@@ -54,12 +72,6 @@ class Preload {
 	static var assetPaths(default, null):Map<ElementKey, String> = [
 		TITLE => 'assets/png/LLG7TH.png',
 		LORD => 'assets/png/templord.png',
-		// KENNEL => 'assets/png/beasthouse.png',
-		// DOG => 'assets/png/dog.png',
-		// CAVALRY => 'assets/png/cavalry.png',
-		// ROUNDOVER => 'assets/png/round-over.png',
-		// RESTART => 'assets/png/restart.png',
-		// QUIT => 'assets/png/quit.png',
 		BOB => 'assets/png/templord.png',
 		lBUBBLER => 'assets/png/lBubbler.png',
 		lBUILDING => 'assets/png/lBuilding.png',
@@ -73,7 +85,9 @@ class Preload {
 		pDog => 'assets/png/pDog.png',
 	];
 
-	public static function letsGo(onLoadAll:Map<ElementKey, Image>->Void) {
+	
+	public static function letsGo(pear:Pear, onLoadAll:Map<ElementKey, Image>->Void) {
+		Global.margin = Std.int(pear.window.height * 0.015);
 		var keyValues = [for (_ in assetPaths.keyValueIterator()) _];
 		Loader.imageArray([for (kv in keyValues) kv.value], (images) -> {
 			var imageMap:Map<ElementKey, Image> = [];

@@ -15,8 +15,8 @@ class ShapeElement implements Element {
 	@custom @varying public var radius:Float;
 	@custom @varying public var sides:Float = 3.0;
 	@custom @varying public var isSelected:Float = 0.0;
-	@posX @set("Position") public var x:Float;
-	@posY @set("Position") public var y:Float;
+	// @posX @set("Position") public var x:Float;
+	// @posY @set("Position") public var y:Float;
 	@sizeX @varying public var w:Int;
 	@sizeY @varying public var h:Int;
 	@pivotX @formula("w * 0.5 + px_offset") public var px_offset:Float;
@@ -29,6 +29,14 @@ class ShapeElement implements Element {
 	@texUnit("base") public var unitBase:Int = 0;         // 1 texture-unit called "base"	
 	var DEFAULT_FORMULA_VARS = [ "base"  => 0xff0000ff ]; // if no texture was set up for this unit, this will be the default color-value instead
 
+	// at what peote.time it have to shake
+	@custom public var shakeAtTime:Float = -100.0;
+	@custom public var shakeDurationX:Float = 1.2;
+	@custom public var shakeDurationY:Float = 0.9;
+
+	// params for shake: number of shakes, size in pixel, durationtime in seconds
+	@posX @set("Position") @formula("x + shake(shakeAtTime, 7.0, 8.0, shakeDurationX)") public var x:Float; 
+	@posY @set("Position") @formula("y + shake(shakeAtTime, 5.0, 6.0, shakeDurationY)") public var y:Float;
 
 	public static var buffers(default, null):Map<Int, Buffer<ShapeElement>> = [];
 	public static var programs(default, null):Map<Int, Program> = [];
@@ -72,6 +80,8 @@ class ShapeElement implements Element {
 							texColor.r = 1.0;
 							texColor.a = 1.0;
 						}
+						// todo ?
+						// float alphaMix = mix(texColor.a, tint.a, 0.5);
 						return vec4(mix(texColor.rgb, tint.rgb, vec3(0.5)), texColor.a);
 					}
 				";
@@ -84,6 +94,20 @@ class ShapeElement implements Element {
 				programs[key].setColorFormula('compose(color, sides)');
 			}
 		}
+
+		programs[key].injectIntoVertexShader(
+		"
+			#define TWO_PI 6.28318530718
+			float shake( float atTime, float freq, float size, float duration )
+			{
+				float t = max(0.0, uTime - atTime);				
+				t = (clamp(t, 0.0, duration) / duration);			
+				return 1.0 - size + size * sin(freq * TWO_PI * t) * (t+0.5)*t*t*(t-1.0)*(t-1.0)*15.5;
+			}
+			
+		"
+		, true // allways include uTime
+		);
 
 		programs[key].alphaEnabled = true;
 		display.addProgram(programs[key]);
@@ -99,6 +123,7 @@ class ShapeElement implements Element {
 		this.radius = w / 2;
 		this.color = color;
 		this.sides = numSides;
+		this.key = key;
 		if (!buffers.exists(key)) {
 			throw 'No buffer exists for the key [$key] make sure to Init the ShapeElement';
 		}
@@ -107,6 +132,13 @@ class ShapeElement implements Element {
 			trace('new element pos [${this.x}, ${this.y}]  dim [${this.w} (${this.radius}) * ${this.h}] pivot [${this.px_offset}, ${this.py_offset}] colour [${this.color}] sides [${this.sides}]');
 		#end
 	}
+	var key:ElementKey;
+	public function shake(atTime:Float) {
+		shakeAtTime = atTime;
+		buffers[key].updateElement(this);
+		
+	}
+
 }
 
 class ShapeShaders {

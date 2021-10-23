@@ -4,12 +4,13 @@ package ob.pear;
 import echo.data.Options.BodyOptions;
 import lime.math.Vector2;
 import ob.pear.GamePiece.ShapePiece;
+import ob.pear.Input.ClickHandler;
 import ob.pear.Text.GlyphStyleTiled;
 import peote.text.Line;
 import peote.view.Color;
 
 
-typedef Box = {x:Float, y:Float, w:Float, h:Float};
+typedef Box = {x:Float, y:Float, w:Float, h:Float, ?margin:Float};
 
 class TextButton extends ShapePiece {
 	var pear:Pear;
@@ -58,8 +59,39 @@ class TextButton extends ShapePiece {
 
 }
 
-class ButtonArea{
-	public function new(){
+
+typedef ButtonConfig = {text:String, action:TextButton -> Void}
+
+class ButtonGrid{
+	public function new(pear:Pear, clickHandler:ClickHandler, buttons:Array<ButtonConfig>, container:Box){
 		
+		if(container.margin == null) container.margin = 0.0;
+		container.w -= container.margin * 0.5;
+		container.h -= container.margin * 0.5;
+		container.x += container.margin;
+		container.y += container.margin;
+		
+		var buttonsize = new Vector2(container.w / 4, container.h / 5);
+		var numColumns = Std.int(container.w / buttonsize.x);
+		var numRows = Std.int(container.h / buttonsize.y);
+
+		var i = 0;
+		for (r in 0...numRows) {
+			for (c in 0...numColumns) {
+				var b = buttons[i];
+				if (b == null) {
+					// no more to display
+					break;
+				}
+				var buttonX = container.x + (c * buttonsize.x) + buttonsize.x * 0.5;
+				var buttonY = container.y + (r * buttonsize.x) + buttonsize.y * 0.5;
+				var button = new TextButton(pear, Global.colors[A], buttonX, buttonY, buttonsize, b.text);
+				button.body.data.gamePiece = button;
+				clickHandler.registerPiece(button);
+				button.onClick = b.action;
+
+				i++;
+			}
+		}
 	}
 }

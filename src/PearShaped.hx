@@ -1,15 +1,14 @@
 package;
 
+
 import data.Global.Preload;
 import haxe.CallStack;
 import lime.app.Application;
-import lime.graphics.RenderContext;
 import lime.ui.KeyCode;
 import lime.ui.KeyModifier;
 import lime.ui.MouseButton;
 import lime.ui.MouseWheelMode;
 import lime.ui.Window;
-import ob.pear.Pear;
 import ob.pear.Text.GlyphStyleTiled;
 import peote.text.Font;
 import scenes.ArtTestScene;
@@ -26,10 +25,18 @@ class PearShaped extends Application {
 
 	public function init(window:Window) {
 		window.cursor = null;
+		#if html5
+		js.Browser.document.onscroll = (e) -> {
+			e.preventDefault();
+		};
+		js.Browser.document.onwheel = (e) -> {
+			e.preventDefault();
+		};
+		#end
 		new Font<GlyphStyleTiled>('assets/fonts/peote.json').load((font) -> {
 			pear = new Pear(window, font);
-			Preload.letsGo((imageMap) -> {
-				pear.changeScene(new RoundEnded(pear, imageMap));
+			Preload.letsGo(pear, (imageMap) -> {
+				// pear.changeScene(new RoundEnded(pear, imageMap));
 				// pear.changeScene(new ScorchedEarth(pear, imageMap));
 				pear.changeScene(new Title(pear, imageMap));
 				// pear.changeScene(new ArtTestScene(pear, imageMap));
@@ -85,5 +92,10 @@ class PearShaped extends Application {
 
 	override function onMouseWheel(deltaX:Float, deltaY:Float, deltaMode:MouseWheelMode):Void {
 		pear.onMouseScroll(deltaX, deltaY);
+	}
+
+	override function onWindowResize(width:Int, height:Int) {
+		super.onWindowResize(width, height);
+		pear.onWindowResize(width, height);
 	}
 }

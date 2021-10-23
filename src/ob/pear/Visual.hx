@@ -107,7 +107,7 @@ class Visual {
 		var glyphStyle = new GlyphStyleTiled();
 		glyphStyle.width = font.config.width;
 		glyphStyle.height = font.config.height;
-		fontProgram = new FontProgram<GlyphStyleTiled>(font, glyphStyle);
+		fontProgram = new FontProgram<GlyphStyleTiled>(font, glyphStyle, false, true);
 		display.addProgram(fontProgram);
 		text = new Text(fontProgram);
 	}
@@ -115,7 +115,15 @@ class Visual {
 	public function halt() {
 		peoteView.stop();
 	}
-;
+
+	public function resize(width:Int, height:Int) {
+		// does not change?
+		peoteView.resize(width, height);
+	}
+	
+	public function getPeoteTime():Float{
+		return peoteView.time;
+	}
 }
 
 class ViewElement implements Element {

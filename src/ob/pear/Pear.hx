@@ -110,6 +110,11 @@ class Pear {
 		mouseWheelDelta.y = y;
 		input.onMouseWheel.emit(mouseWheelDelta);
 	}
+	public function onWindowResize(width:Int, height:Int) {
+		this.scene.vis.resize(width, height);
+		// .display.width = width;
+		// this.scene.vis.display.height = height;
+	}
 
 	public function initShape(elementKey:Int, colour:Color, options:BodyOptions, visualSize:{vWidth:Float, vHeight:Float} = null,
 			isFlippedX:Bool):ShapePiece {
@@ -118,6 +123,10 @@ class Pear {
 
 	public function setupCollision(a:IGamePiece, b:IGamePiece, options:ListenerOptions) {
 		scene.phys.setupCollision(a.body, b.body, options);
+	}
+
+	public function getPeoteTime():Float{
+		return scene.vis.getPeoteTime();
 	}
 
 }

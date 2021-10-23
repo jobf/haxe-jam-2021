@@ -6,10 +6,7 @@ import echo.data.Options.WorldOptions;
 import lime.graphics.Image;
 import ob.pear.GamePiece.ShapePiece;
 import ob.pear.Input.ClickHandler;
-import ob.pear.Pear;
 import ob.pear.Scene;
-import ob.pear.Text.GlyphStyleTiled;
-import peote.text.Font;
 import peote.view.Color;
 
 class BaseScene extends Scene {
@@ -35,7 +32,7 @@ class BaseScene extends Scene {
 		super.init();
 
 		var cursorSize = pear.window.height * 0.07;
-		cursor = phys.initShape(ElementKey.CIRCLE, 0x44ff44aa, {
+		cursor = phys.initShape(ElementKey.CIRCLE, Global.cursorColor, {
 			x: pear.window.width * 0.5,
 			y: pear.window.height * 0.5,
 			velocity_y: 0,
@@ -52,11 +49,35 @@ class BaseScene extends Scene {
 			}
 		}, false);
 		cursor.cloth.z = Layers.CURSOR;
+		cursor.body.data.isCursor = true;
+		cursor.body.data.gamePiece = cursor;
 		pear.followMouse(cursor);
-
+		// todo
+		// phys.world.listen(cursor.body, everything, {
+		// 	enter: (A, B, collisions) -> {
+		// 		if(A.data.isCursor != null){
+		// 			var cursor:ShapePiece = A.data.gamePiece;
+		// 			cursor.setColor(Color.RED);
+		// 		}
+		// 	},
+		// 	exit: (A, B) -> {
+		// 		if(A.data.isCursor != everything){
+		// 			var cursor:ShapePiece = A.data.gamePiece;
+		// 			cursor.setColor(Color.GREEN);
+		// 		}
+		// 	}
+		// });
 
 		clickHandler = new ClickHandler(cursor, phys.world);
 		pear.input.onMouseDown.connect((sig) -> clickHandler.onMouseDown());
+
+		// todo remove before release
+		pear.input.onKeyDown.connect((sig) -> {
+			// restart scene
+			if (sig.key == BACKSPACE)
+				pear.changeScene(new WaveSetupScene(pear, images));
+		});
+
 	}
 	override function update(deltaTimeMs:Float) {
 		super.update(deltaTimeMs);

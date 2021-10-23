@@ -53,7 +53,7 @@ class Projectiles{
 		imageKey: pDog,
 		shape: CIRCLE,
 		visualSize: Size.calcVisual(2, 1),
-		damagePower: 20,
+		damagePower: 40,
 		bodyOptions: {
 			shape: {
 				type: CIRCLE,
@@ -76,7 +76,7 @@ class Projectiles{
 		imageKey: pFowl,
 		shape: CIRCLE,
 		visualSize: Size.calcVisual(1, 1),
-		damagePower: 20,
+		damagePower: 75,
 		bodyOptions: {
 			shape: {
 				type: CIRCLE,
@@ -119,7 +119,7 @@ class Projectiles{
 		imageKey: pMelee,
 		shape: RECT,
 		visualSize: Size.calcVisual(2, 3),
-		damagePower: 20,
+		damagePower: 60,
 		bodyOptions: {
 			shape: {
 				type: RECT,

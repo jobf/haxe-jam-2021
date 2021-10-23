@@ -13,7 +13,6 @@ import lime.graphics.Image;
 import lime.math.Vector2;
 import lime.ui.KeyCode;
 import ob.pear.GamePiece.IGamePiece;
-import ob.pear.Pear;
 import ob.pear.Sprites.ShapeElement;
 
 using ob.pear.Delay.DelayExtensions;
@@ -53,11 +52,6 @@ class ScorchedEarth extends BaseScene {
 			ShapeElement.init(vis.display, l.value.projectileStats.shape, l.value.projectileStats.imageKey, images[l.value.projectileStats.imageKey]);
 		}
 		
-		// ShapeElement.init(vis.display, RECT, LORD, images[LORD]);
-		// ShapeElement.init(vis.display, RECT, KENNEL, images[KENNEL]);
-		// ShapeElement.init(vis.display, CIRCLE, DOG, images[DOG]);
-		// ShapeElement.init(vis.display, RECT, CAVALRY, images[CAVALRY]);
-
 		phys.world.quadtree.max_depth = 2;
 		phys.world.static_quadtree.max_depth = 3;
 
@@ -68,10 +62,18 @@ class ScorchedEarth extends BaseScene {
 		phys.world.listen(worldCollideOptions);
 
 		pear.input.onMouseDown.connect((sig) -> {
+			#if debug
 			trace('mouse is clicked ${sig.x}, ${sig.y}');
+			#end
 			handleMouseClick();
 		});
 
+		pear.input.onMouseWheel.connect((sig) -> {
+			// trace('mouse is scroll ${sig.x}, ${sig.y}');
+			handleMouseScroll(sig);
+		});
+
+		
 		pear.input.onKeyDown.connect((sig) -> {
 			handlePlayerKeyPress(sig.key);
 		});
@@ -91,18 +93,18 @@ class ScorchedEarth extends BaseScene {
 			]
 		};
 		
-		playerA = new Player(0, pear, playerPosA, false, playerAConfig);
+		playerA = new Player(PlayerId.A, pear, playerPosA, false, playerAConfig);
 		// player is vulnerable by default, for testing we don't want that
 		playerA.toggleIsVulnerable(); // todo - check this works `^_^
 
 		var playerPosB = new Vector2(1000, pear.window.height);
-		playerB = new Player(1, pear, playerPosB, true, Rounds.opponents[Global.opponentIndex]);
+		playerB = new Player(PlayerId.B, pear, playerPosB, true, Rounds.opponents[Global.opponentIndex]);
 
 		isWaveOver = false;
 		isRoundOver = false;
 		isInProgress = true;
-		Global.wonLastRound = 0;
-
+		Global.whoWonLastRound = 0;
+		var title = vis.text.write("click toggles select, scroll alters trajectory!", pear.window.width * 0.5, Global.margin * 4, Global.textBgColor);
 		startNextWave();
 	}
 
@@ -111,6 +113,27 @@ class ScorchedEarth extends BaseScene {
 		playerBTargets = {launchers: [], projectiles: []};
 		playerA.startWave(playerATargets, playerBTargets);
 		playerB.startWave(playerBTargets, playerATargets);
+	}
+
+	function endRound(){
+		for (t in tweens) {
+			// t.onStop(); todo function for cancel
+			t.isLooped = false;
+			t.isInProgress = false;
+		}
+		
+		Global.whoWonLastRound = playerB.isDefeated ? PlayerId.A : PlayerId.B;
+
+		for(l in playerB.defeatedLaunchers){
+			trace('extra launcher available ${l.stats.tag}');
+			Global.availableLaunchers.push(l.stats);
+		}
+
+		if(PlayerId.A == Global.whoWonLastRound){
+			Global.opponentIndex++;
+		}
+
+		pear.changeScene(new RoundEnded(pear, images));
 	}
 
 	override function update(deltaMs:Float) {
@@ -126,12 +149,7 @@ class ScorchedEarth extends BaseScene {
 		if (isRoundOver) {
 			trace('round over player defeated ? ${playerA.isWaveDefeated} cpu defeated ? ${playerB.isWaveDefeated}');
 			isInProgress = false;
-			for (t in tweens) {
-				// t.onStop(); todo function for cancel
-				t.isLooped = false;
-				t.isInProgress = false;
-			}
-			pear.changeScene(new RoundEnded(pear, images));
+			endRound();
 		} else {
 			isWaveOver = playerB.isWaveDefeated || playerA.isWaveDefeated;
 			if (isWaveOver) {
@@ -165,5 +183,11 @@ class ScorchedEarth extends BaseScene {
 				playerA.selectLauncher(launcher.id);
 			},
 		});
+	}
+
+	function handleMouseScroll(scroll:Vector2) {
+		if(playerA.isLauncherSelected()){
+			playerA.alterSelectedLauncherTrajectory(scroll.y < 0 ? Down : Up);
+		}
 	}
 }

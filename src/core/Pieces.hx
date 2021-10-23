@@ -6,7 +6,7 @@ import ob.pear.Sprites.ShapeElement;
 import peote.view.Buffer;
 import peote.view.Color;
 
-typedef Vitals = { player:Int, pieceType:PieceType};
+typedef Vitals = { player:PlayerId, pieceType:PieceType};
 class BodyExtensions{
     public static function getVitals(body:Body):Vitals {
         return body.data.vitals;
@@ -23,17 +23,17 @@ class BodyExtensions{
 class OverlordPiece extends ShapePiece{
     var vitals:Vitals;
     public var isExpired:Bool;
-    public var isRemoveNextUpdate:Bool;
+    public var isExpiring:Bool;
     public function new(elementKey:Int, vitals_:Vitals, color:Color, visibleWidth:Float, visibleHeight:Float, ?buffer:Buffer<ShapeElement>, body:Body, isFlippedX:Bool) {
         super(elementKey, color, visibleWidth, visibleHeight, null, body, isFlippedX);
         vitals = vitals_;
         body.data.vitals = vitals_;
         isExpired = false;
-        isRemoveNextUpdate = false;
+        isExpiring = false;
     }
     public function expire() {
-		if(!isRemoveNextUpdate && !isExpired){
-			isRemoveNextUpdate = true;
+		if(!isExpiring && !isExpired){
+			isExpiring = true;
 		}
 	}
 }

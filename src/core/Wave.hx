@@ -1,13 +1,9 @@
 package core;
 
-import core.Launcher.LauncherConfig;
 import core.Launcher.LauncherStats;
 import core.Launcher.TargetGroup;
-import data.Barracks;
-import echo.Body;
 import lime.math.Vector2;
 import ob.pear.Delay;
-import ob.pear.Pear;
 import ob.pear.Random;
 import scenes.ScorchedEarth.Direction;
 
@@ -23,6 +19,7 @@ class Wave {
 	var stats:WaveStats;
 	var launcherLimiter:Delay;
 	var activeLaunchers:Array<Launcher> = [];
+	public var defeatedLaunchers(default, null):Array<Launcher> = [];
 	var targets:TargetGroup;
 	var opponentTargets:TargetGroup;
 	var tag:String;
@@ -55,17 +52,19 @@ class Wave {
 
 			if (launcher.hp <= 0) {
 				activeLaunchers.remove(launcher);
+				trace('collecting ${launcher.stats.tag}');
+				defeatedLaunchers.push(launcher);
 				launcher.destroy();
 				numLaunchersRemaining--;
 			}
 
-			// if(launcher.isExpired){
-			// 	launcher.dispose();
-			// }
+			if(launcher.isExpiring && !launcher.isExpired){
+				launcher.isExpired = true;
+				launcher.dispose();
+			}
 		}
 
 		isDefeated = numLaunchersRemaining <= 0;
-
 	}
 
 	var selected:Launcher;
@@ -90,6 +89,10 @@ class Wave {
 		}
 	}
 
+	public function isLauncherSelected():Bool{
+		return selected != null;	
+	}
+
 	public function toggleIsVulnerable() {
 		for (l in activeLaunchers) {
 			l.toggleIsVulnerable();
@@ -107,8 +110,6 @@ class Wave {
 			return;
 		};
 
-
-
 		if (activeLaunchers.length < stats.maximumActiveLaunchers && launcherIndex < stats.launchers.length) {
 			var next = stats.launchers[launcherIndex];
 			var launcherPos:Vector2;
@@ -120,9 +121,7 @@ class Wave {
 			else{
 				launcherPos = next.pos.clone();
 			}
-			if (isFlippedX) {
-				// next.position.x *= -1;
-			}
+			
 			var launcher = new Launcher(playerId, pear, next.stats, targets, opponentTargets, launcherPos, tag, isFlippedX);
 			activeLaunchers.push(launcher);
 			targets.launchers.push(launcher.body);

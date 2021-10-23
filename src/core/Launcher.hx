@@ -10,7 +10,6 @@ import lime.math.Vector2;
 import ob.pear.Delay;
 import ob.pear.GamePiece.IGamePiece;
 import ob.pear.GamePiece.ShapePiece;
-import ob.pear.Pear;
 import peote.view.Color;
 import scenes.ScorchedEarth.Direction;
 
@@ -230,17 +229,16 @@ class Launcher extends OverlordPiece {
 	}
 
 	public function takeDamage(projectileBody:Body) {
-		if (isVulnerable) {
-			var log = '$tag launcher was hit';
+		if (isVulnerable && !isExpired) {
 			recoverFromHit.isInProgress = true;
-			// setColor(Color.RED);
-			cloth.rotation += 30;
 			var projectileData:ProjectileStats = projectileBody.data.projectileData;
 			if (projectileData != null) {
-				log += ' by ${projectileBody.data.tag} projectile causing damaged ${projectileData.damagePower}';
+				// log += ' by ${projectileBody.data.tag} projectile causing damaged ${projectileData.damagePower}';
 				hp -= projectileData.damagePower;
 			}
-			// trace(log);
+			cloth.shakeDurationX = 0.35;
+			cloth.shakeDurationY = 0.2;
+			cloth.shake(pear.getPeoteTime());
 		}
 	}
 
@@ -274,8 +272,6 @@ class Launcher extends OverlordPiece {
 	function onPrepareShotFinish() {
 		// trace('shoot!');
 		status = Shoot;
-		// cloth.w = Std.int(stats.visualSize.x + 10);
-		updateElement();
 		var p = initProjectile();
 		launchProjectile(p);
 		madeShot.start();
@@ -294,18 +290,11 @@ class Launcher extends OverlordPiece {
 		// trace('...aim...');
 		status = Idle;
 		recoverFromHit.isInProgress = false;
-		cloth.rotation = 0.0;
-		// cloth.rotation -= 5;
-		// // cloth.w = Std.int(stats.visualSize.x - 20);
-		// updateElement();
-		// prepareShot.start();
 	}
 
 	function onRateLimitFinish() {
 		// trace('...aim...');
 		status = Prepare;
-		cloth.rotation -= 5;
-		// cloth.w = Std.int(stats.visualSize.x - 20);
 		updateElement();
 		prepareShot.start();
 	}
@@ -338,7 +327,7 @@ class Launcher extends OverlordPiece {
 			
 			p.update(dt);
 
-			if(p.isRemoveNextUpdate || pear.scene.phys.isOutOfBounds(p.body)){
+			if(p.isExpiring || pear.scene.phys.isOutOfBounds(p.body)){
 				p.isExpired = true;
 			}
 
@@ -349,14 +338,6 @@ class Launcher extends OverlordPiece {
 			}
 		}
 	}
-
-	// public function moveTo(speed:Float, moveBy:Vector2) {
-	// 	// todo tween this
-	// 	body.velocity.x = speed;
-	// 	// body.active = true;
-	// 	trace('ent velocity ${body.velocity}');
-	// 	body.set_position(pear.window.width * 0.5, pear.window.height * 0.5);
-	// }
 
 	var amount = 10;
 

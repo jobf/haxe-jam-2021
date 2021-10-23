@@ -1,5 +1,6 @@
 package core;
 
+import core.Launcher.LauncherStats;
 import core.Launcher.TargetGroup;
 import core.Wave.WaveStats;
 import data.Global.ElementKey;
@@ -7,7 +8,6 @@ import data.Rounds.OpponentConfig;
 import echo.Body;
 import lime.math.Vector2;
 import ob.pear.GamePiece.ShapePiece;
-import ob.pear.Pear;
 import peote.view.Color;
 import scenes.ScorchedEarth.Direction;
 
@@ -17,17 +17,18 @@ class Player {
 	// public var lord(default, null):ShapePiece;
 
 	var isFlippedX:Bool;
-	var playerId:Int;
+	var playerId:PlayerId;
 	var pear:Pear;
 	var wave:Wave;
 	var isWaveInProgress:Bool = false;
 	var config:OpponentConfig;
 	var tag:String;
 	var waveIndex = 0;
+	public var defeatedLaunchers(default, null):Array<Launcher> = [];
 	public var isWaveDefeated(default, null):Bool = false;
 	public var isDefeated(default, null):Bool = false;
 
-	public function new(playerId_:Int, pear_:Pear, position:Vector2, flipX:Bool, config_:OpponentConfig) {
+	public function new(playerId_:PlayerId, pear_:Pear, position:Vector2, flipX:Bool, config_:OpponentConfig) {
 		playerId = playerId_;
 		pear = pear_;
 		config = config_;
@@ -65,8 +66,12 @@ class Player {
 		isWaveDefeated = true;
 		isWaveInProgress = false;
 		if(waveIndex > config.waves.length - 1){
-			trace('$tag was defeated');
+			trace('$tag wave was defeated');
 			isDefeated = true;
+		}
+		for(l in wave.defeatedLaunchers){
+			trace('add to player defeated ${l.stats.tag}');
+			defeatedLaunchers.push(l);
 		}
 	}
 
@@ -87,6 +92,10 @@ class Player {
 
 	public function selectLauncher(id:Int) {
 		wave.selectLauncher(id);
+	}
+
+	public function isLauncherSelected():Bool{
+		return wave.isLauncherSelected();	
 	}
 
 	public function alterSelectedLauncherTrajectory(direction:Direction) {
