@@ -1,9 +1,11 @@
 package scenes;
 
 import data.Global.ElementKey;
+import data.Global.Layers;
 import echo.data.Options.WorldOptions;
 import lime.graphics.Image;
 import ob.pear.GamePiece.ShapePiece;
+import ob.pear.Input.ClickHandler;
 import ob.pear.Pear;
 import ob.pear.Scene;
 import ob.pear.Text.GlyphStyleTiled;
@@ -14,6 +16,8 @@ class BaseScene extends Scene {
 	var cursor:ShapePiece;
 	var images:Map<ElementKey, Image>;
 
+	
+	public var clickHandler(default, null):ClickHandler;
 	override public function new(pear:Pear, options:WorldOptions = null, backgroundColor:Color = 0xbdb6aeff, images:Map<ElementKey, Image>) {
 		options = options != null ? options : {
 			width: pear.window.width,
@@ -47,8 +51,15 @@ class BaseScene extends Scene {
 				solid: false
 			}
 		}, false);
-
+		cursor.cloth.z = Layers.CURSOR;
 		pear.followMouse(cursor);
-	}
 
+
+		clickHandler = new ClickHandler(cursor, phys.world);
+		pear.input.onMouseDown.connect((sig) -> clickHandler.onMouseDown());
+	}
+	override function update(deltaTimeMs:Float) {
+		super.update(deltaTimeMs);
+		clickHandler.update(deltaTimeMs);
+	}
 }

@@ -14,6 +14,7 @@ class Scene {
 	public var phys(default, null):Physical;
 	public var tweens(default, null):Array<Tween<Dynamic>>;
 
+	
 	var pear:Pear;
 	var canUpdate:Bool;
 	var font:Font<GlyphStyleTiled>;

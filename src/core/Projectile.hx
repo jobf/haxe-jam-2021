@@ -2,7 +2,6 @@ package core;
 
 import core.Pieces;
 import data.Global.ElementKey;
-import data.Global;
 import echo.data.Options.BodyOptions;
 import echo.data.Types.ShapeType;
 import lime.math.Vector2;
@@ -36,6 +35,7 @@ class Projectile extends OverlordPiece {
 		behaviour = behaviour_;
 		behaviourIndex = 0;
 		super(stats.imageKey, vitals, Global.colors[vitals.player], stats.visualSize.x, stats.visualSize.y, body, isFlippedX);
+		cloth.z = cloth.z = Layers.PROJECTILES;
 	}
 
 	public function resetVelocity(){

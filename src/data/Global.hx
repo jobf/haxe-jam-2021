@@ -7,6 +7,8 @@ import peote.view.Color;
 import utils.Loader;
 
 class Global {
+	public static var fontSize:Int = 32;
+	public static var margin:Int = 15;
 	public static var wonLastRound:Int = 0;
 	public static var opponentIndex:Int = 0;
 	public static var currentWaveSetup:WaveStats;
@@ -16,18 +18,23 @@ class Global {
 	];
 }
 
+// z-index for various elements
+@:enum abstract Layers(Int) from Int to Int {
+	var CURSOR = 0;
+	var TEXT = -10;
+	var BUTTONS = -20;
+	var LAUNCHERS = -40;
+	var PROJECTILES = -50;
+	var IMAGES = -80;
+	var BACKGROUND = -90;
+}
+
 @:enum abstract ElementKey(Int) from Int to Int {
 	var RECT;
 	var CIRCLE;
 	var POLYGON;
 	var TITLE;
 	var LORD;
-	var KENNEL;
-	var DOG;
-	var CAVALRY;
-	var ROUNDOVER;
-	var RESTART;
-	var QUIT;
 	var BOB;
 	var lBUBBLER;
 	var lBUILDING;
@@ -47,12 +54,12 @@ class Preload {
 	static var assetPaths(default, null):Map<ElementKey, String> = [
 		TITLE => 'assets/png/LLG7TH.png',
 		LORD => 'assets/png/templord.png',
-		KENNEL => 'assets/png/beasthouse.png',
-		DOG => 'assets/png/dog.png',
-		CAVALRY => 'assets/png/cavalry.png',
-		ROUNDOVER => 'assets/png/round-over.png',
-		RESTART => 'assets/png/restart.png',
-		QUIT => 'assets/png/quit.png',
+		// KENNEL => 'assets/png/beasthouse.png',
+		// DOG => 'assets/png/dog.png',
+		// CAVALRY => 'assets/png/cavalry.png',
+		// ROUNDOVER => 'assets/png/round-over.png',
+		// RESTART => 'assets/png/restart.png',
+		// QUIT => 'assets/png/quit.png',
 		BOB => 'assets/png/templord.png',
 		lBUBBLER => 'assets/png/lBubbler.png',
 		lBUILDING => 'assets/png/lBuilding.png',

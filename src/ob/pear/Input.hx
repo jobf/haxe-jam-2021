@@ -8,11 +8,12 @@ import ob.pear.GamePiece.ShapePiece;
 
 
 class ClickHandler{
-	public function new(mouseTargets:Array<Body>, cursor:ShapePiece, world:World) {
-		targets = mouseTargets;
+	public var group(default, null):Array<ShapePiece> = [];
+	public var targets(default, null):Array<Body> = [];
+	public function new(cursor:ShapePiece, world:World) {
 		this.cursor = cursor;
 		this.world = world;
-		world.listen(mouseTargets, cursor.body, {
+		world.listen(targets, cursor.body, {
 			// separate: separate,
 			enter: onItemOver,
 			// stay: stay,
@@ -23,6 +24,22 @@ class ClickHandler{
 		});
 	}
 
+	public function update(deltaMs:Float) {
+		group.all((item)->item.update(deltaMs));
+    }
+
+	public function listenForClicks(extraTargets:Array<Body>){
+		world.listen(extraTargets, cursor.body, {
+			// separate: separate,
+			enter: onItemOver,
+			// stay: stay,
+			exit: onItemLeave,
+			// condition: condition,
+			// percent_correction: percent_correction,
+			// correction_threshold: correction_threshold
+		});
+	}
+	
 	public function onMouseDown(){
 		// var itemUnderMouse = itemsUnderMouse.first((item)-> item.body.id)
 		// if(itemUnderMouse != null){
@@ -57,9 +74,11 @@ class ClickHandler{
 			}
 		}
 	}
-
-
-	var targets:Array<Body>;
+	
+	public function registerPiece(piece:ShapePiece){
+		targets.push(piece.body);
+		group.push(piece);
+	}
 	var cursor:ShapePiece;
 	var world:World;
 	var itemsUnderMouse:Array<IGamePiece> = [];

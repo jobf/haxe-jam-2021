@@ -79,21 +79,22 @@ class ArtTestScene extends BaseScene{
 
         var stats:WaveStats = {
             launchers: [
-				Barracks.Launchers[lBUILDING],
-				Barracks.Launchers[lBUBBLER],
-				Barracks.Launchers[lARCHER],
-				Barracks.Launchers[lDOGGER],
-				Barracks.Launchers[lFOWLER],
+				{pos: null, stats: Barracks.Launchers[lBUILDING]},
+				{pos: null, stats: Barracks.Launchers[lBUBBLER]},
+				{pos: null, stats: Barracks.Launchers[lARCHER]},
+				{pos: null, stats: Barracks.Launchers[lDOGGER]},
+				{pos: null, stats: Barracks.Launchers[lFOWLER]},
 			],
             maximumActiveLaunchers: 999
         };
 		var statsB:WaveStats = {
             launchers: [
-				Barracks.Launchers[lBUILDING],
-				Barracks.Launchers[lBUBBLER],
-				Barracks.Launchers[lARCHER],
-				Barracks.Launchers[lDOGGER],
-				Barracks.Launchers[lFOWLER],
+				
+				{pos: null, stats: Barracks.Launchers[lBUILDING]},
+				{pos: null, stats: Barracks.Launchers[lBUBBLER]},
+				{pos: null, stats: Barracks.Launchers[lARCHER]},
+				{pos: null, stats: Barracks.Launchers[lDOGGER]},
+				{pos: null, stats: Barracks.Launchers[lFOWLER]},
 			],
             maximumActiveLaunchers: 999
 
@@ -111,7 +112,8 @@ class ArtTestScene extends BaseScene{
         waveA = new Wave(0, pear, stats, bodiesA, bodiesB, "BOT A", isNotFlippedX);
         waveB = new Wave(1, pear, statsB, bodiesB, bodiesA, "BOT B", isFlippedX);
 
-		clickHandler = new ClickHandler(bodiesA.launchers, cursor, phys.world);
+		launchersClickHandler = new ClickHandler(cursor, phys.world);
+		launchersClickHandler.listenForClicks(bodiesA.launchers);
 
 		pear.input.onMouseDown.connect((sig) -> clickHandler.onMouseDown());
 	}
@@ -121,10 +123,12 @@ class ArtTestScene extends BaseScene{
         waveA.update(deltaMs);
         waveB.update(deltaMs);
 		group.all((item)->item.update(deltaMs));
+		launchersClickHandler.update(deltaMs);
     }
 	var waveA:Wave;
 	var waveB:Wave;
 
 	var bodiesA:Array<Body>;
-	var clickHandler:ClickHandler;
+
+	var launchersClickHandler:ClickHandler;
 }

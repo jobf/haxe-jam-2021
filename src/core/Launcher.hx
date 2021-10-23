@@ -3,7 +3,6 @@ package core;
 import core.Pieces;
 import core.Projectile.ProjectileStats;
 import data.Global.ElementKey;
-import data.Global;
 import echo.Body;
 import echo.Listener;
 import echo.data.Types.ShapeType;
@@ -127,8 +126,15 @@ class Launcher extends OverlordPiece {
 		body.data.owner = this; // todo consolidate use of owner to gamePiece elsewhere
 		body.data.gamePiece = this;
 		var color = Global.colors[playerId];
+		
+		
+		
+		// super duper is here in the spaghetti!
 		super(stats.imageKey, {player: playerId, pieceType: LAUNCHER}, color, stats.visualSize.x, stats.visualSize.y, body, isFlippedX);
+		// see ^^^
 
+
+		cloth.z = Layers.LAUNCHERS;
 		isVulnerable = true;
 		status = Idle;
 		var movementIndex = 0;

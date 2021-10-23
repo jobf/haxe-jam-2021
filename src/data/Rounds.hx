@@ -9,6 +9,11 @@ typedef OpponentConfig = {
 	waves:Array<WaveStats>
 }
 
+/*
+
+new Vector2(item.body.x, item.body.y)
+*/
+
 class Rounds {
 	public static var opponents:Array<OpponentConfig> = [
 		{
@@ -17,18 +22,10 @@ class Rounds {
 			waves: [
 				{
 					launchers: [
-						Barracks.Launchers[KENNEL],
+						{ pos: null, stats: Barracks.Launchers[lBUBBLER]},
 					],
 					maximumActiveLaunchers: 2,
-				},
-				{
-					launchers: [
-						Barracks.Launchers[CAVALRY],
-						Barracks.Launchers[CAVALRY],
-						Barracks.Launchers[CAVALRY],
-					],
-					maximumActiveLaunchers: 2,
-				},
+				}
 			]
 		},
 		{
@@ -37,17 +34,15 @@ class Rounds {
 			waves: [
 				{
 					launchers: [
-						Barracks.Launchers[CAVALRY],
-						Barracks.Launchers[CAVALRY],
-						Barracks.Launchers[CAVALRY]
+						{ pos: null, stats: Barracks.Launchers[lBUILDING]},
 					],
 					maximumActiveLaunchers: 2,
 				},
 				{
 					launchers: [
-						Barracks.Launchers[CAVALRY],
-						Barracks.Launchers[CAVALRY],
-						Barracks.Launchers[CAVALRY],
+						{ pos: null, stats: Barracks.Launchers[lARCHER]},
+						{ pos: null, stats: Barracks.Launchers[lARCHER]},
+						{ pos: null, stats: Barracks.Launchers[lARCHER]},
 					],
 					maximumActiveLaunchers: 2,
 				},

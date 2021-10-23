@@ -2,9 +2,8 @@ package scenes;
 
 import core.Launcher.TargetGroup;
 import core.Player;
+import core.Wave.WaveStats;
 import data.Barracks;
-import data.Global.ElementKey;
-import data.Global;
 import data.Projectiles;
 import data.Rounds;
 import echo.Body;
@@ -78,26 +77,20 @@ class ScorchedEarth extends BaseScene {
 		});
 
 		var playerPosA = new Vector2(0, pear.window.height);
-		var playerAConfig = {
-			name: "oh lord!",
-			imageKey: LORD,
+		var playerAConfig:OpponentConfig = {
+			name: "player",
+			imageKey: BOB,
 			waves: [
-				Global.currentWaveSetup != null ? Global.currentWaveSetup : {
+				Global.currentWaveSetup != null ? Global.currentWaveSetup 
+				: {
 					launchers: [
-						Barracks.Launchers[lDOGGER],
-					],
-					maximumActiveLaunchers: 2,
-				},
-				{
-					launchers: [
-						Barracks.Launchers[lDOGGER],
-						Barracks.Launchers[lBUBBLER],
-						Barracks.Launchers[lFOWLER],
+						{pos: null, stats: Barracks.Launchers[lFOWLER]}
 					],
 					maximumActiveLaunchers: 2,
 				}
 			]
-		}
+		};
+		
 		playerA = new Player(0, pear, playerPosA, false, playerAConfig);
 		// player is vulnerable by default, for testing we don't want that
 		playerA.toggleIsVulnerable(); // todo - check this works `^_^

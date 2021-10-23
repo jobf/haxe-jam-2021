@@ -47,12 +47,14 @@ class Player {
 		// 		solid: false,
 		// 	}
 		// }, isFlippedX);
-		// lord.cloth.z = -30;
+		// lord.cloth.z = Layers.IMAGES;
 	}
 
 	public function startWave(targets:TargetGroup, opponentTargets:TargetGroup) {
 		var waveConfig = config.waves[waveIndex];
-		trace(' waveConfig $waveConfig');
+		#if debug
+		trace('\n [waveConfig] \n\n $waveConfig \n\n');
+		#end
 		wave = new Wave(playerId, pear, waveConfig, targets, opponentTargets, tag, isFlippedX);
 		isWaveDefeated = false;
 		isWaveInProgress = true;

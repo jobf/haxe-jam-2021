@@ -14,7 +14,7 @@ import scenes.ScorchedEarth.Direction;
 using ob.pear.Delay.DelayExtensions;
 
 typedef WaveStats = {
-	launchers:Array<LauncherStats>,
+	launchers:Array<{pos:Vector2, stats:LauncherStats}>,
 	maximumActiveLaunchers:Int
 };
 
@@ -107,21 +107,23 @@ class Wave {
 			return;
 		};
 
-		if (activeLaunchers.length < stats.maximumActiveLaunchers && launcherIndex < stats.launchers.length - 1) {
+
+
+		if (activeLaunchers.length < stats.maximumActiveLaunchers && launcherIndex < stats.launchers.length) {
 			var next = stats.launchers[launcherIndex];
 			var launcherPos:Vector2;
-			if(next.position == null){
-				var heightPercent = Random.range(next.heightMinMax.x, next.heightMinMax.y);
+			if(next.pos == null){
+				var heightPercent = Random.range(next.stats.heightMinMax.x, next.stats.heightMinMax.y);
 				var x = isFlippedX ? pear.window.width - 10 : 10;
 				launcherPos = new Vector2(x, heightPercent * pear.window.height);
 			}
 			else{
-				launcherPos = next.position.clone();
+				launcherPos = next.pos.clone();
 			}
 			if (isFlippedX) {
 				// next.position.x *= -1;
 			}
-			var launcher = new Launcher(playerId, pear, next, targets, opponentTargets, launcherPos, tag, isFlippedX);
+			var launcher = new Launcher(playerId, pear, next.stats, targets, opponentTargets, launcherPos, tag, isFlippedX);
 			activeLaunchers.push(launcher);
 			targets.launchers.push(launcher.body);
 			launcherIndex++;
